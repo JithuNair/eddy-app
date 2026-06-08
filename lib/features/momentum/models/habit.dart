@@ -4,11 +4,13 @@ class Habit {
   final String id;
   final String name;
   final List<String> completedDates; // yyyy-MM-dd
+  final bool archived;
 
   const Habit({
     required this.id,
     required this.name,
     required this.completedDates,
+    this.archived = false,
   });
 
   static String dateKey(DateTime d) =>
@@ -36,18 +38,26 @@ class Habit {
   }
 
   Habit copyWithName(String newName) =>
-      Habit(id: id, name: newName, completedDates: completedDates);
+      Habit(id: id, name: newName, completedDates: completedDates,
+          archived: archived);
+
+  Habit copyWithArchived(bool value) =>
+      Habit(id: id, name: name, completedDates: completedDates,
+          archived: value);
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'completedDates': completedDates,
+        'archived': archived,
       };
 
   factory Habit.fromJson(Map<String, dynamic> json) => Habit(
         id: json['id'] as String,
         name: json['name'] as String,
         completedDates: List<String>.from(json['completedDates'] as List),
+        // default false for habits saved before this field existed
+        archived: json['archived'] as bool? ?? false,
       );
 
   String toJsonString() => jsonEncode(toJson());

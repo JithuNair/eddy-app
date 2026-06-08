@@ -68,14 +68,18 @@ class _MomentumTrackerScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Tracker shows ALL habits — including archived — so users can
+    // review (and permanently delete) sensitive history.
     final habits = ref.watch(momentumProvider);
     final c = context.colors;
 
-    // Resolve selected habit
+    // Resolve selected habit — default to first active, then first archived
     if (habits.isNotEmpty &&
         (_selectedHabitId == null ||
             !habits.any((h) => h.id == _selectedHabitId))) {
-      _selectedHabitId = habits.first.id;
+      final firstActive =
+          habits.cast<Habit?>().firstWhere((h) => !h!.archived, orElse: () => null);
+      _selectedHabitId = (firstActive ?? habits.first).id;
     }
     final Habit? habit = habits.isEmpty
         ? null
@@ -127,8 +131,11 @@ class _MomentumTrackerScreenState
                   : ListView(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 48),
                       children: [
-                        // Habit selector (only when >1 habit)
-                        if (habits.length > 1) ...[
+                        // Habit selector — show when >1 habit OR when
+                        // a single habit is archived (needs chip to anchor
+                        // the permanent-delete affordance clearly).
+                        if (habits.length > 1 ||
+                            (habits.length == 1 && habits.first.archived)) ...[
                           _HabitChips(
                             habits: habits,
                             selectedId: _selectedHabitId!,
@@ -175,6 +182,30 @@ class _MomentumTrackerScreenState
                         )
                             .animate()
                             .fadeIn(delay: 120.ms, duration: 350.ms),
+                        // Permanent delete — only shown for archived habits
+                        if (habit.archived) ...[
+                          const SizedBox(height: 32),
+                          _PermanentDeleteSection(
+                            habit: habit,
+                            colors: c,
+                            onDeleted: () {
+                              // After permanent delete, jump to first remaining
+                              // habit or go back if none left
+                              final remaining = ref
+                                  .read(momentumProvider)
+                                  .where((h) => h.id != habit.id)
+                                  .toList();
+                              if (remaining.isEmpty) {
+                                context.go('/momentum');
+                              } else {
+                                setState(() => _selectedHabitId =
+                                    remaining.first.id);
+                              }
+                            },
+                          )
+                              .animate()
+                              .fadeIn(delay: 180.ms, duration: 350.ms),
+                        ],
                       ],
                     ),
             ),
@@ -221,6 +252,21 @@ class _HabitChips extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: habits.map((h) {
           final sel = h.id == selectedId;
+          final isArchived = h.archived;
+          // Archived chips use a muted, dashed-border style regardless of
+          // selection state — no loud coral fill for deleted habits.
+          final bgColor = sel
+              ? (isArchived
+                  ? c.surfaceElevated
+                  : accentColor)
+              : c.surface;
+          final borderColor = sel
+              ? (isArchived ? c.border : accentColor)
+              : c.border;
+          final textColor = isArchived
+              ? c.textMuted
+              : (sel ? Colors.white : c.textSecondary);
+
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
@@ -229,19 +275,29 @@ class _HabitChips extends StatelessWidget {
                 duration: const Duration(milliseconds: 150),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: sel ? accentColor : c.surface,
+                  color: bgColor,
                   borderRadius: EddyRadius.chip,
-                  border: Border.all(
-                      color: sel ? accentColor : c.border, width: 0.5),
+                  border: Border.all(color: borderColor, width: 0.5),
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  h.name,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: sel ? Colors.white : c.textSecondary,
-                        fontWeight:
-                            sel ? FontWeight.w600 : FontWeight.normal,
-                      ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      h.name,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: textColor,
+                            fontWeight: sel && !isArchived
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                    ),
+                    if (isArchived) ...[
+                      const SizedBox(width: 5),
+                      Icon(Icons.lock_outline_rounded,
+                          size: 10, color: c.textMuted),
+                    ],
+                  ],
                 ),
               ),
             ),
@@ -642,6 +698,164 @@ class _Stat extends StatelessWidget {
               ),
         ),
       ],
+    );
+  }
+}
+
+// ── Permanent delete section ──────────────────────────────────────────────────
+
+class _PermanentDeleteSection extends ConsumerWidget {
+  final Habit habit;
+  final ColorTokens colors;
+  final VoidCallback onDeleted;
+
+  const _PermanentDeleteSection({
+    required this.habit,
+    required this.colors,
+    required this.onDeleted,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Divider(color: c.border.withValues(alpha: 0.3), height: 1),
+        const SizedBox(height: 20),
+        Text(
+          'REMOVED HABIT',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: c.textMuted,
+                letterSpacing: 1.5,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'This habit was removed from your active list. '
+          'Its history is still here if you want to look back.',
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: c.textMuted, height: 1.6),
+        ),
+        const SizedBox(height: 16),
+        GestureDetector(
+          onTap: () => _confirmDelete(context, ref),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.redAccent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                  color: Colors.redAccent.withValues(alpha: 0.2), width: 0.5),
+            ),
+            child: Center(
+              child: Text(
+                'Permanently delete all history',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.redAccent.withValues(alpha: 0.8),
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _confirmDelete(BuildContext context, WidgetRef ref) {
+    final c = colors;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: c.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Delete all history?',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'This will permanently remove "${habit.name}" and every date '
+              'you logged. It cannot be undone.',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: c.textSecondary, height: 1.6),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: c.surfaceElevated,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                            color: c.border.withValues(alpha: 0.6),
+                            width: 0.5),
+                      ),
+                      child: Center(
+                        child: Text('Keep it',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: c.textSecondary,
+                                    fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      ref
+                          .read(momentumProvider.notifier)
+                          .permanentlyDeleteHabit(habit.id);
+                      onDeleted();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                            color: Colors.redAccent.withValues(alpha: 0.25),
+                            width: 0.5),
+                      ),
+                      child: Center(
+                        child: Text('Delete forever',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                    color: Colors.redAccent,
+                                    fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

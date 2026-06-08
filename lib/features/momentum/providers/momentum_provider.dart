@@ -49,7 +49,20 @@ class MomentumNotifier extends StateNotifier<List<Habit>> {
     _save([...state, habit]);
   }
 
+  /// Soft-delete: hides the habit from the Momentum list but preserves
+  /// all history so the user can review it (and permanently wipe it) in
+  /// the Tracker screen.
   void deleteHabit(String habitId) {
+    final updated = state.map((h) {
+      if (h.id != habitId) return h;
+      return h.copyWithArchived(true);
+    }).toList();
+    _save(updated);
+  }
+
+  /// Hard-delete: permanently removes the habit and all its history from
+  /// Hive. Called only from the Tracker screen via an explicit confirmation.
+  void permanentlyDeleteHabit(String habitId) {
     _box.delete(habitId);
     state = state.where((h) => h.id != habitId).toList();
   }

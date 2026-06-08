@@ -14,7 +14,10 @@ class MomentumScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final habits = ref.watch(momentumProvider);
+    final allHabits = ref.watch(momentumProvider);
+    // Only show non-archived habits on the main Momentum screen.
+    // Archived habits are preserved in the Tracker for history review.
+    final habits = allHabits.where((h) => !h.archived).toList();
     final c = context.colors;
 
     return EddyScaffold(

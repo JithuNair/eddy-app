@@ -137,6 +137,43 @@ void main() {
       );
       expect(habit.isLastChance, isFalse);
     });
+
+    test('archived defaults to false on new habits', () {
+      const habit = Habit(id: 'a', name: 'Test', completedDates: []);
+      expect(habit.archived, isFalse);
+    });
+
+    test('copyWithArchived sets archived flag without changing other fields', () {
+      final habit = Habit(
+        id: 'a',
+        name: 'Test',
+        completedDates: [Habit.dateKey(DateTime.now())],
+      );
+      final archived = habit.copyWithArchived(true);
+      expect(archived.archived, isTrue);
+      expect(archived.id, habit.id);
+      expect(archived.name, habit.name);
+      expect(archived.completedDates, habit.completedDates);
+    });
+
+    test('fromJson backward-compat: missing archived key defaults to false', () {
+      final json = <String, dynamic>{
+        'id': 'a',
+        'name': 'Test',
+        'completedDates': <String>[],
+        // no 'archived' key — simulates old stored data
+      };
+      final habit = Habit.fromJson(json);
+      expect(habit.archived, isFalse);
+    });
+
+    test('toJson round-trips archived field', () {
+      const habit = Habit(
+          id: 'a', name: 'Test', completedDates: [], archived: true);
+      final json = habit.toJson();
+      final restored = Habit.fromJson(json);
+      expect(restored.archived, isTrue);
+    });
   });
 
   // ── EddyBrandMark (founder-approved PNG logo) ────────────────────────────────
