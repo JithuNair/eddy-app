@@ -47,7 +47,7 @@ Split from `grounded_breathing_icons.png` source sheet.
 | `box_breathing.png` | Box Breathing tool card |
 | `grounding.png` | 5-4-3-2-1 Grounding tool card |
 
-Not yet wired to screens — ready for use in `regulate_tool_card.dart` or the regulate screen cards.
+Wired in `lib/features/regulate/screens/regulate_screen.dart` → `_RegulateCard.iconAsset`. White background removed; icons render cleanly on the subtle-coloured rounded container.
 
 ### Focus sound icons (`assets/icons/focus_sounds/`)
 
@@ -62,13 +62,13 @@ Split from `focus_background_icons.png` source sheet.
 | `vinyl.png` | 70s Vinyl |
 | `music_stream.png` | Music stream |
 
-Not yet wired — ready for use in `lib/features/focus/widgets/sound_picker.dart`.
+Wired in `lib/features/focus/models/sound_option.dart` (`iconAsset` field) and `lib/features/focus/widgets/sound_picker.dart` (`_SoundChip`, `_StreamChip`). White background and baked-in label text removed; icons render at 22×22 inside chips.
 
 ### Illustrations (`assets/illustrations/`)
 
 | File | Used for |
 |---|---|
-| `momentum_empty_state.png` | Empty state illustration for the Momentum screen (no habits yet) |
+| `momentum_empty_state.png` | Empty state illustration for the Momentum screen (no habits yet) — wired in `_EmptyState` at 180px / 55% opacity |
 
 ---
 
