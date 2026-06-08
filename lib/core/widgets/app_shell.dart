@@ -115,13 +115,9 @@ class _ThemeToggle extends StatelessWidget {
           border: Border.all(color: c.border),
         ),
         child: ClipOval(
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Image.asset(
-              asset,
-              fit: BoxFit.contain,
-              // Semantic label handled by parent GestureDetector tooltip
-            ),
+          child: Image.asset(
+            asset,
+            fit: BoxFit.cover,
           ),
         ),
       ),
