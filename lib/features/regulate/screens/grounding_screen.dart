@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +30,7 @@ const _steps = [
       prompt: 'Close your eyes. What 4 sounds are present right now?',
       icon: Icons.hearing_rounded),
   _GroundingStep(count: 3, sense: 'Touch', verb: 'you can touch',
-      prompt: 'Feel 3 textures — the floor, your clothes, the air.',
+      prompt: 'Feel 3 textures â€” the floor, your clothes, the air.',
       icon: Icons.touch_app_rounded),
   _GroundingStep(count: 2, sense: 'Smell', verb: 'you can smell',
       prompt: 'Breathe in slowly. Notice 2 scents around you.',
@@ -174,7 +174,7 @@ class _GroundingScreenState extends State<GroundingScreen> {
               style: TextStyle(
                 fontSize: 96,
                 fontWeight: FontWeight.w100,
-                color: c.regulate.withOpacity(0.5),
+                color: c.regulate.withValues(alpha: 0.5),
                 height: 1,
               )),
           const SizedBox(height: 8),
@@ -224,7 +224,7 @@ class _GroundingScreenState extends State<GroundingScreen> {
                   ?.copyWith(fontWeight: FontWeight.w300)),
           const SizedBox(height: 12),
           Text(
-            'That\'s all grounding is — returning to the present.\nYou can do this anytime.',
+            'That\'s all grounding is â€” returning to the present.\nYou can do this anytime.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge
                 ?.copyWith(color: c.textMuted),

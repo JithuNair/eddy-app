@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/color_tokens.dart';
@@ -192,7 +192,7 @@ class _SoundControl extends StatelessWidget {
                     activeTrackColor: c.focus,
                     inactiveTrackColor: c.border,
                     thumbColor: c.focus,
-                    overlayColor: c.focus.withOpacity(0.1),
+                    overlayColor: c.focus.withValues(alpha: 0.1),
                     thumbShape:
                         const RoundSliderThumbShape(enabledThumbRadius: 6),
                     trackHeight: 2,

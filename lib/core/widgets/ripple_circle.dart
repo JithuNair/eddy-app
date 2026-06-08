@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
-/// Expanding concentric ripple rings — the Eddy water-current signature.
+/// Expanding concentric ripple rings â€” the Eddy water-current signature.
 /// Self-animated, no external controller needed.
 class RippleCircle extends StatefulWidget {
   final Color color;
@@ -83,7 +83,7 @@ class _RipplePainter extends CustomPainter {
         center,
         radius,
         Paint()
-          ..color = color.withOpacity(opacity)
+          ..color = color.withValues(alpha: opacity)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5,
       );

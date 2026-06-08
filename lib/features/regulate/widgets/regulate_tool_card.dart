@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../../core/theme/color_tokens.dart';
 
 class RegulateToolCard extends StatefulWidget {
@@ -47,7 +47,7 @@ class _RegulateToolCardState extends State<RegulateToolCard> {
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: _pressed
-                  ? c.regulate.withOpacity(0.4)
+                  ? c.regulate.withValues(alpha: 0.4)
                   : c.border,
               width: 0.5,
             ),
@@ -100,7 +100,7 @@ class _RegulateToolCardState extends State<RegulateToolCard> {
                     Text(
                       widget.subtitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: c.regulate.withOpacity(0.8),
+                            color: c.regulate.withValues(alpha: 0.8),
                             fontSize: 13,
                           ),
                     ),

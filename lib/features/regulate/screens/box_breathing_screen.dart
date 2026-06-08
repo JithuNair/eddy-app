@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -142,7 +142,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen>
                   Text('Box Breathing',
                       style: Theme.of(context).textTheme.headlineMedium),
                   const SizedBox(height: 4),
-                  Text('4 · 4 · 4 · 4 — steady rhythm reset',
+                  Text('4 Â· 4 Â· 4 Â· 4 â€” steady rhythm reset',
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium
@@ -152,7 +152,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen>
             ),
             const Spacer(),
 
-            // Animated square — the box
+            // Animated square â€” the box
             GestureDetector(
               onTap: _phase == _BoxPhase.ready ? _start : null,
               child: AnimatedBuilder(
@@ -171,7 +171,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen>
                           borderRadius: BorderRadius.circular(30),
                           gradient: RadialGradient(
                             colors: [
-                              c.regulate.withOpacity(0.06 + t * 0.06),
+                              c.regulate.withValues(alpha: 0.06 + t * 0.06),
                               Colors.transparent,
                             ],
                           ),
@@ -187,17 +187,17 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              c.regulate.withOpacity(0.12 + t * 0.10),
-                              c.regulate.withOpacity(0.04 + t * 0.06),
+                              c.regulate.withValues(alpha: 0.12 + t * 0.10),
+                              c.regulate.withValues(alpha: 0.04 + t * 0.06),
                             ],
                           ),
                           border: Border.all(
-                            color: c.regulate.withOpacity(0.2 + t * 0.4),
+                            color: c.regulate.withValues(alpha: 0.2 + t * 0.4),
                             width: 1.0,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: c.regulate.withOpacity(0.15 * t),
+                              color: c.regulate.withValues(alpha: 0.15 * t),
                               blurRadius: 24,
                               spreadRadius: 2,
                             ),

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'color_tokens.dart';
 
-// ── Radius ────────────────────────────────────────────────────────────────────
+// â”€â”€ Radius â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class EddyRadius {
   static const xs = 8.0;
   static const sm = 12.0;
@@ -19,7 +19,7 @@ class EddyRadius {
   static const sheet = BorderRadius.vertical(top: Radius.circular(xl));
 }
 
-// ── Spacing ───────────────────────────────────────────────────────────────────
+// â”€â”€ Spacing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class EddySpacing {
   static const xs = 4.0;
   static const sm = 8.0;
@@ -33,11 +33,11 @@ class EddySpacing {
   static const cardV = EdgeInsets.symmetric(horizontal: 20, vertical: 16);
 }
 
-// ── Glows / Shadows ───────────────────────────────────────────────────────────
+// â”€â”€ Glows / Shadows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class EddyGlow {
   static List<BoxShadow> accent(Color color, {double intensity = 0.25}) => [
         BoxShadow(
-          color: color.withOpacity(intensity),
+          color: color.withValues(alpha: intensity),
           blurRadius: 24,
           spreadRadius: 0,
         ),
@@ -45,12 +45,12 @@ class EddyGlow {
 
   static List<BoxShadow> orb(Color color) => [
         BoxShadow(
-          color: color.withOpacity(0.35),
+          color: color.withValues(alpha: 0.35),
           blurRadius: 40,
           spreadRadius: 4,
         ),
         BoxShadow(
-          color: color.withOpacity(0.15),
+          color: color.withValues(alpha: 0.15),
           blurRadius: 80,
           spreadRadius: 8,
         ),
@@ -58,20 +58,20 @@ class EddyGlow {
 
   static List<BoxShadow> card(ColorTokens c) => [
         BoxShadow(
-          color: c.darkOverlay.withOpacity(0.6),
+          color: c.darkOverlay.withValues(alpha: 0.6),
           blurRadius: 16,
           offset: const Offset(0, 4),
         ),
       ];
 }
 
-// ── Gradients ─────────────────────────────────────────────────────────────────
+// â”€â”€ Gradients â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class EddyGradients {
   static LinearGradient regulate(ColorTokens c) => LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          c.regulate.withOpacity(0.12),
+          c.regulate.withValues(alpha: 0.12),
           c.surface,
         ],
       );
@@ -80,7 +80,7 @@ class EddyGradients {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          c.focus.withOpacity(0.10),
+          c.focus.withValues(alpha: 0.10),
           c.surface,
         ],
       );
@@ -89,22 +89,22 @@ class EddyGradients {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          c.momentum.withOpacity(0.10),
+          c.momentum.withValues(alpha: 0.10),
           c.surface,
         ],
       );
 
   static RadialGradient orbGlow(Color color) => RadialGradient(
         colors: [
-          color.withOpacity(0.18),
-          color.withOpacity(0.06),
+          color.withValues(alpha: 0.18),
+          color.withValues(alpha: 0.06),
           Colors.transparent,
         ],
         stops: const [0.0, 0.5, 1.0],
       );
 }
 
-// ── Card decorations ──────────────────────────────────────────────────────────
+// â”€â”€ Card decorations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class EddyCardStyle {
   static BoxDecoration base(ColorTokens c, {Color? gradient}) => BoxDecoration(
         color: gradient == null ? c.surface : null,
@@ -112,22 +112,22 @@ class EddyCardStyle {
             ? LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [gradient.withOpacity(0.12), c.surface],
+                colors: [gradient.withValues(alpha: 0.12), c.surface],
               )
             : null,
         borderRadius: EddyRadius.card,
-        border: Border.all(color: c.border.withOpacity(0.6), width: 0.5),
+        border: Border.all(color: c.border.withValues(alpha: 0.6), width: 0.5),
         boxShadow: EddyGlow.card(c),
       );
 
   static BoxDecoration elevated(ColorTokens c) => BoxDecoration(
         color: c.surfaceElevated,
         borderRadius: EddyRadius.card,
-        border: Border.all(color: c.border.withOpacity(0.4), width: 0.5),
+        border: Border.all(color: c.border.withValues(alpha: 0.4), width: 0.5),
       );
 }
 
-// ── Text Styles ───────────────────────────────────────────────────────────────
+// â”€â”€ Text Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Complementary helpers on top of ThemeData's textTheme
 class EddyText {
   static TextStyle sectionLabel(ColorTokens c) => TextStyle(

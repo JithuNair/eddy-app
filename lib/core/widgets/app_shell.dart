@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/color_tokens.dart';
@@ -92,7 +92,7 @@ class _ThemeToggle extends StatelessWidget {
           border: Border.all(color: c.border),
         ),
         child: Text(
-          isDark ? '🦉' : '🦅',
+          isDark ? 'ðŸ¦‰' : 'ðŸ¦…',
           style: const TextStyle(fontSize: 16),
         ),
       ),
@@ -146,7 +146,7 @@ class _NavBar extends StatelessWidget {
                               horizontal: 14, vertical: 4),
                           decoration: BoxDecoration(
                             color: selected
-                                ? activeColor.withOpacity(0.12)
+                                ? activeColor.withValues(alpha: 0.12)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),

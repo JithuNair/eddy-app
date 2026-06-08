@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/color_tokens.dart';
 import '../models/sound_option.dart';
@@ -184,7 +184,7 @@ class _StreamChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('⊕',
+            Text('âŠ•',
                 style: TextStyle(
                     fontSize: 13,
                     color: selected ? Colors.white : c.textSecondary)),
@@ -236,7 +236,7 @@ class _StreamUrlRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: error != null
-              ? Colors.redAccent.withOpacity(0.4)
+              ? Colors.redAccent.withValues(alpha: 0.4)
               : c.border,
         ),
       ),

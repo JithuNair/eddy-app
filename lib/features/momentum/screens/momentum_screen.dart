@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/color_tokens.dart';
@@ -69,15 +69,15 @@ class _HabitCard extends StatelessWidget {
         borderRadius: EddyRadius.card,
         border: Border.all(
           color: isLastChance
-              ? c.momentum.withOpacity(0.4)
-              : c.border.withOpacity(0.6),
+              ? c.momentum.withValues(alpha: 0.4)
+              : c.border.withValues(alpha: 0.6),
           width: 0.5,
         ),
         gradient: isLastChance
             ? LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [c.momentum.withOpacity(0.06), c.surface],
+                colors: [c.momentum.withValues(alpha: 0.06), c.surface],
               )
             : null,
         boxShadow: EddyGlow.card(c),
@@ -99,7 +99,7 @@ class _HabitCard extends StatelessWidget {
                     color: c.momentumSubtle,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: c.momentum.withOpacity(0.2), width: 0.5),
+                        color: c.momentum.withValues(alpha: 0.2), width: 0.5),
                   ),
                   child: Text('do it today',
                       style: EddyText.tag(c.momentum)),

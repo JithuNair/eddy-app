@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../theme/eddy_theme.dart';
 
-/// A pulsing orb with a soft glow — the signature Eddy breathing visual.
+/// A pulsing orb with a soft glow â€” the signature Eddy breathing visual.
 /// Drives from an external [AnimationController] so the parent screen
 /// controls the breath cycle timing.
 class BreathingOrb extends StatelessWidget {
@@ -41,7 +41,7 @@ class BreathingOrb extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      color.withOpacity(0.12 * t),
+                      color.withValues(alpha: 0.12 * t),
                       Colors.transparent,
                     ],
                   ),
@@ -53,7 +53,7 @@ class BreathingOrb extends StatelessWidget {
                 height: size + 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(0.08 * t),
+                  color: color.withValues(alpha: 0.08 * t),
                 ),
               ),
               // Core orb
@@ -64,13 +64,13 @@ class BreathingOrb extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      color.withOpacity(0.55 + 0.2 * t),
-                      color.withOpacity(0.20 + 0.10 * t),
+                      color.withValues(alpha: 0.55 + 0.2 * t),
+                      color.withValues(alpha: 0.20 + 0.10 * t),
                     ],
                     stops: const [0.0, 1.0],
                   ),
                   boxShadow: EddyGlow.orb(color).map((s) => BoxShadow(
-                        color: s.color.withOpacity(s.color.opacity * t),
+                        color: s.color.withValues(alpha: s.color.a * t),
                         blurRadius: s.blurRadius,
                         spreadRadius: s.spreadRadius,
                       )).toList(),
@@ -109,7 +109,7 @@ class StaticOrb extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: RadialGradient(
           colors: [
-            color.withOpacity(opacity),
+            color.withValues(alpha: opacity),
             Colors.transparent,
           ],
         ),

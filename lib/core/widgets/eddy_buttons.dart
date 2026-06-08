@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../theme/color_tokens.dart';
 import '../theme/eddy_theme.dart';
 
@@ -33,7 +33,7 @@ class EddyPrimaryButton extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: EddyRadius.button),
+          shape: const RoundedRectangleBorder(borderRadius: EddyRadius.button),
         ),
         child: icon != null
             ? Row(
@@ -80,9 +80,9 @@ class EddyPillButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: accent,
-          side: BorderSide(color: accent.withOpacity(0.5)),
+          side: BorderSide(color: accent.withValues(alpha: 0.5)),
           shape:
-              RoundedRectangleBorder(borderRadius: EddyRadius.pillButton),
+              const RoundedRectangleBorder(borderRadius: EddyRadius.pillButton),
           padding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         ),
@@ -103,11 +103,11 @@ class EddyPillButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: accent.withOpacity(0.15),
+        backgroundColor: accent.withValues(alpha: 0.15),
         foregroundColor: accent,
         elevation: 0,
         shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: EddyRadius.pillButton),
+        shape: const RoundedRectangleBorder(borderRadius: EddyRadius.pillButton),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       ),
       child: icon != null

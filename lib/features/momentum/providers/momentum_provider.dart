@@ -16,7 +16,7 @@ class MomentumNotifier extends StateNotifier<List<Habit>> {
     _box = Hive.box(_boxName);
     final raw = _box.values.cast<String>().toList();
     if (raw.isEmpty) {
-      final seed = Habit(
+      const seed = Habit(
         id: _seedHabitId,
         name: '30 mins of movement',
         completedDates: [],

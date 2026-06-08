@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -104,7 +104,7 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
   String get _phaseLabel => switch (_phase) {
         _SighPhase.ready => 'Ready when you are',
         _SighPhase.inhale1 => 'Inhale through nose',
-        _SighPhase.inhale2 => 'Keep inhaling — top it up',
+        _SighPhase.inhale2 => 'Keep inhaling â€” top it up',
         _SighPhase.exhale => 'Long slow exhale through mouth',
         _SighPhase.done => 'Well done',
       };
@@ -112,7 +112,7 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
   String get _phaseSub => switch (_phase) {
         _SighPhase.ready => 'Tap the orb to begin',
         _SighPhase.inhale1 => 'First inhale',
-        _SighPhase.inhale2 => 'Double inhale — quick sniff',
+        _SighPhase.inhale2 => 'Double inhale â€” quick sniff',
         _SighPhase.exhale => 'Empty all the way out',
         _SighPhase.done => 'Your nervous system has been reset',
       };
@@ -184,13 +184,13 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.air_rounded,
-                              size: 26, color: Colors.white.withOpacity(0.9)),
+                              size: 26, color: Colors.white.withValues(alpha: 0.9)),
                           const SizedBox(height: 4),
                           Text('TAP',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 letterSpacing: 2,
                               )),
                         ],
@@ -202,9 +202,9 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
                           height: 160,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: c.regulate.withOpacity(0.15),
+                            color: c.regulate.withValues(alpha: 0.15),
                             border:
-                                Border.all(color: c.regulate.withOpacity(0.4)),
+                                Border.all(color: c.regulate.withValues(alpha: 0.4)),
                             boxShadow: EddyGlow.accent(c.regulate),
                           ),
                           child: Icon(Icons.check_rounded,
