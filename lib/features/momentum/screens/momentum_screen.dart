@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/color_tokens.dart';
 import '../../../core/theme/eddy_theme.dart';
@@ -408,15 +409,16 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Opacity(
-            opacity: 0.55,
-            child: Image.asset(
-              'assets/illustrations/momentum_empty_state.png',
-              width: 180,
+            opacity: isDark ? 0.82 : 0.72,
+            child: SvgPicture.asset(
+              'assets/illustrations/momentum_empty_state.svg',
+              width: 220,
               fit: BoxFit.contain,
             ),
           ),
