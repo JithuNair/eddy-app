@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
 import '../theme/color_tokens.dart';
+import 'eddy_swirl_logo.dart';
 
+/// Section header used on every main screen (Regulate / Focus / Momentum).
+///
+/// Structure:
+///   EddyBrandMark  (swirl logo + "eddy" wordmark, tinted by [accentColor])
+///   ──────────────
+///   [title]        (displayLarge)
+///   [subtitle]     (bodyLarge, textMuted)   — optional
+///
+/// The right-padding default (72 px) clears the owl/eagle theme toggle that
+/// lives in AppShell's top-right corner.
 class EddyHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -23,17 +34,15 @@ class EddyHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'eddy',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: accentColor,
-              letterSpacing: 2.0,
-            ),
-          ),
-          const SizedBox(height: 6),
+          // Brand mark: swirl logo + "eddy" wordmark
+          EddyBrandMark(accentColor: accentColor, size: 26),
+
+          const SizedBox(height: 18),
+
+          // Screen title
           Text(title, style: Theme.of(context).textTheme.displayLarge),
+
+          // Optional subtitle / section tagline
           if (subtitle != null) ...[
             const SizedBox(height: 6),
             Text(
