@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/color_tokens.dart';
@@ -10,9 +10,21 @@ class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
 
   static const _tabs = [
-    _Tab(label: 'Regulate', icon: Icons.air_rounded, path: '/regulate'),
-    _Tab(label: 'Focus', icon: Icons.center_focus_strong_rounded, path: '/focus'),
-    _Tab(label: 'Momentum', icon: Icons.bolt_rounded, path: '/momentum'),
+    _Tab(
+      label: 'Regulate',
+      assetPath: 'assets/icons/nav/regulate.png',
+      path: '/regulate',
+    ),
+    _Tab(
+      label: 'Focus',
+      assetPath: 'assets/icons/nav/focus.png',
+      path: '/focus',
+    ),
+    _Tab(
+      label: 'Momentum',
+      assetPath: 'assets/icons/nav/momentum.png',
+      path: '/momentum',
+    ),
   ];
 
   static const _subRoutes = [
@@ -72,6 +84,12 @@ class AppShell extends ConsumerWidget {
   }
 }
 
+// ── Theme toggle ─────────────────────────────────────────────────────────────
+//
+// Dark mode  → shows the owl   (assets/icons/theme/dark_mode_owl.png)
+// Light mode → shows the eagle (assets/icons/theme/light_mode_eagle.png)
+//
+// Tapping switches to the other mode.
 class _ThemeToggle extends StatelessWidget {
   final bool isDark;
   final VoidCallback onToggle;
@@ -81,25 +99,41 @@ class _ThemeToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final asset = isDark
+        ? 'assets/icons/theme/dark_mode_owl.png'
+        : 'assets/icons/theme/light_mode_eagle.png';
+
     return GestureDetector(
       onTap: onToggle,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
           color: c.surface,
-          borderRadius: BorderRadius.circular(20),
+          shape: BoxShape.circle,
           border: Border.all(color: c.border),
         ),
-        child: Text(
-          isDark ? 'ðŸ¦‰' : 'ðŸ¦…',
-          style: const TextStyle(fontSize: 16),
+        child: ClipOval(
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Image.asset(
+              asset,
+              fit: BoxFit.contain,
+              // Semantic label handled by parent GestureDetector tooltip
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
+// ── Navigation bar ────────────────────────────────────────────────────────────
+//
+// Each tab uses a PNG icon from assets/icons/nav/.
+// Selected tab: full opacity + tinted background pill.
+// Unselected tab: 35% opacity so the icon colour doesn't compete.
 class _NavBar extends StatelessWidget {
   final List<_Tab> tabs;
   final int activeIndex;
@@ -127,12 +161,13 @@ class _NavBar extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: SizedBox(
-            height: 60,
+            height: 64,
             child: Row(
               children: List.generate(tabs.length, (i) {
                 final tab = tabs[i];
                 final selected = i == activeIndex;
-                final color = selected ? activeColor : c.textMuted;
+                final labelColor =
+                    selected ? activeColor : c.textMuted;
 
                 return Expanded(
                   child: InkWell(
@@ -150,13 +185,21 @@ class _NavBar extends StatelessWidget {
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Icon(tab.icon, color: color, size: 20),
+                          child: Opacity(
+                            opacity: selected ? 1.0 : 0.35,
+                            child: Image.asset(
+                              tab.assetPath,
+                              width: 24,
+                              height: 24,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 2),
                         AnimatedDefaultTextStyle(
                           duration: const Duration(milliseconds: 200),
                           style: TextStyle(
-                            color: color,
+                            color: labelColor,
                             fontSize: 10,
                             fontWeight: selected
                                 ? FontWeight.w700
@@ -180,8 +223,14 @@ class _NavBar extends StatelessWidget {
 
 class _Tab {
   final String label;
-  final IconData icon;
+
+  /// Path to the nav icon PNG under assets/icons/nav/.
+  final String assetPath;
   final String path;
 
-  const _Tab({required this.label, required this.icon, required this.path});
+  const _Tab({
+    required this.label,
+    required this.assetPath,
+    required this.path,
+  });
 }
