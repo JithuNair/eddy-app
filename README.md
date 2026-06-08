@@ -82,18 +82,11 @@ flutter run
 
 ## Contributing
 
-eddy is open source and community built. You can contribute:
+eddy is open source and community built. Async, flexible, and neurodivergent-friendly — no streak pressure in contribution culture either. Show up when you can.
 
-- New regulation techniques (research-backed)
-- Ambient sound packs
-- Localization (Hindi, Malayalam planned first)
-- Focus mode variations
-- UI/UX improvements
-- Accessibility improvements
+You can contribute code, regulation techniques, accessibility improvements, localization, ambient sound ideas, documentation, design feedback, or testing. Small things count.
 
-**No streak pressure in contribution culture either.** Async, flexible, welcoming. Show up when you can.
-
-Open a discussion on GitHub before building something large — not for gatekeeping, but to avoid duplicated effort.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, PR guidance, and design principles.
 
 ---
 
@@ -113,9 +106,21 @@ Open a discussion on GitHub before building something large — not for gatekeep
 
 ## About
 
-Built by [Jithu J. Nair](https://github.com/jithunair) — Manager of Data Science & AI, Hyderabad. Self-identified combined-type ADHD profile. Every feature comes from lived experience, not clinical theory.
+Built by [Jithu J. Nair](https://github.com/jithunair). Every feature comes from lived experience, not clinical theory.
 
 The name *eddy* comes from fluid dynamics: a calm, stable pocket that forms inside turbulent flow. That's what this app is trying to be.
+
+---
+
+---
+
+## License and Brand Use
+
+The **source code** is licensed under the [Apache License 2.0](LICENSE).
+
+The **Eddy name, logo, app icon, visual identity, and brand assets** are owned by Jithu J. Nair and are not open licensed. You may fork and build with the code — you may not use the Eddy brand for a redistributed or competing product without permission.
+
+See [TRADEMARK.md](TRADEMARK.md) for the full brand policy.
 
 ---
 
