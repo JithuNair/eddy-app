@@ -184,7 +184,7 @@ class _StreamChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('âŠ•',
+            Text('⊕',
                 style: TextStyle(
                     fontSize: 13,
                     color: selected ? Colors.white : c.textSecondary)),
