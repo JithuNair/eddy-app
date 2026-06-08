@@ -7,11 +7,25 @@ final themeModeProvider =
 });
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier() : super(ThemeMode.dark);
+  // Start with the OS preference; the toggle button lets the user override.
+  ThemeModeNotifier() : super(ThemeMode.system);
 
   void toggle() {
-    state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    // Resolve current effective mode before toggling so the button always
+    // flips to the opposite of what's actually on screen.
+    final platformDark =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+            Brightness.dark;
+    final effectivelyDark = state == ThemeMode.dark ||
+        (state == ThemeMode.system && platformDark);
+    state = effectivelyDark ? ThemeMode.light : ThemeMode.dark;
   }
 
-  bool get isDark => state == ThemeMode.dark;
+  bool get isDark {
+    if (state == ThemeMode.system) {
+      return WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+          Brightness.dark;
+    }
+    return state == ThemeMode.dark;
+  }
 }
