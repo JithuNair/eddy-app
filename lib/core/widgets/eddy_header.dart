@@ -34,8 +34,8 @@ class EddyHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Brand mark: swirl logo + "eddy" wordmark
-          EddyBrandMark(accentColor: accentColor, size: 26),
+          // Brand mark: founder-approved PNG logo + "eddy" wordmark
+          EddyBrandMark(accentColor: accentColor, size: 32),
 
           const SizedBox(height: 18),
 

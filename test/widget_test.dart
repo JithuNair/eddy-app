@@ -12,8 +12,7 @@
 // causing a false failure.
 //
 // Rather than wrestle with that environment mismatch, we test the individual
-// component that this sprint added: the EddyBrandMark / EddySwirlLogo.
-// That keeps the test suite fast, meaningful, and zero-flake.
+// brand mark components directly. That keeps the suite fast and zero-flake.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -22,14 +21,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:eddy/core/widgets/eddy_swirl_logo.dart';
 
 void main() {
-  // ── Minimal helper: thin wrapper that provides required Material ancestors ──
+  // ── Minimal helper: thin wrapper providing required Material ancestors ──────
   Widget wrap(Widget child) => MaterialApp(
-        home: Scaffold(
-          body: Center(child: child),
-        ),
+        home: Scaffold(body: Center(child: child)),
       );
 
-  // ── EddySwirlLogo ───────────────────────────────────────────────────────────
+  // ── EddySwirlLogo (fallback CustomPainter) ──────────────────────────────────
   group('EddySwirlLogo', () {
     testWidgets('renders at default size without throwing', (tester) async {
       await tester.pumpWidget(
@@ -38,7 +35,6 @@ void main() {
       await tester.pump();
 
       expect(find.byType(EddySwirlLogo), findsOneWidget);
-      // CustomPaint is the backing painter widget
       expect(find.byType(CustomPaint), findsWidgets);
     });
 
@@ -53,16 +49,17 @@ void main() {
     });
   });
 
-  // ── EddyBrandMark ───────────────────────────────────────────────────────────
+  // ── EddyBrandMark (founder-approved PNG logo) ────────────────────────────────
   group('EddyBrandMark', () {
-    testWidgets('shows swirl logo and wordmark by default', (tester) async {
+    testWidgets('shows PNG mark and wordmark by default', (tester) async {
       await tester.pumpWidget(
         wrap(const EddyBrandMark(accentColor: Color(0xFF6FD3C0))),
       );
       await tester.pump();
 
       expect(find.byType(EddyBrandMark), findsOneWidget);
-      expect(find.byType(EddySwirlLogo), findsOneWidget);
+      // PNG logo renders via Image.asset → Image widget
+      expect(find.byType(Image), findsOneWidget);
       // Wordmark text
       expect(find.text('eddy'), findsOneWidget);
     });
@@ -76,7 +73,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(EddySwirlLogo), findsOneWidget);
+      expect(find.byType(Image), findsOneWidget);
       expect(find.text('eddy'), findsNothing);
     });
 

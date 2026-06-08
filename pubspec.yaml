@@ -44,3 +44,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/audio/
+    - assets/brand/eddy_logo.png
+    - assets/brand/eddy_primary_lockup.png
+    - assets/brand/eddy_app_icon_reference.png

@@ -1,19 +1,88 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// ── EddySwirlLogo ────────────────────────────────────────────────────────────
-///
-/// An abstract swirl mark that implies a lowercase "e" through:
-///   • a near-complete circular arc  (the body / bowl of the letter)
-///   • a horizontal crossbar stroke  (the "e" counter)
-///   • a tiny dot at centre          (the protected eye of the eddy)
-///
-/// The arc has a SweepGradient that fades at both ends (near the gap at
-/// 3 o'clock), giving the stroke the sense of emerging from and dissolving
-/// back into the current — premium, calm, not mascot-like.
-///
-/// Usage:
-///   EddySwirlLogo(color: context.colors.regulate, size: 28)
+// ── Asset path constants ────────────────────────────────────────────────────
+
+/// The founder-approved Eddy symbol mark (PNG, light background).
+/// Registered in pubspec.yaml under assets/brand/.
+const _kLogoAsset = 'assets/brand/eddy_logo.png';
+
+// ── EddyBrandMark ────────────────────────────────────────────────────────────
+//
+// The composed brand identity shown in every section header.
+//
+// Mark:     founder-approved PNG logo (assets/brand/eddy_logo.png), clipped
+//           to a soft rounded square so it sits crisply on dark surfaces.
+// Wordmark: lowercase "eddy" text tinted by the section accent colour:
+//             Regulate → Eddy Teal    #6FD3C0
+//             Focus    → Drift Lav    #A89BFF
+//             Momentum → Warm Coral   #FF8F7A
+//
+// [showWordmark] — set false to use the mark alone (e.g. compact spots).
+// [size]         — height of the logo mark; wordmark scales proportionally.
+class EddyBrandMark extends StatelessWidget {
+  final Color accentColor;
+  final bool showWordmark;
+
+  /// Height of the logo mark container in logical pixels.
+  final double size;
+
+  const EddyBrandMark({
+    super.key,
+    required this.accentColor,
+    this.showWordmark = true,
+    this.size = 32,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // ── Logo mark ──────────────────────────────────────────────────────
+        // Clip the PNG (which has a light background) to a rounded square.
+        // The subtle rounding echoes the premium aquatic feel without
+        // obscuring the drop shadow baked into the asset.
+        ClipRRect(
+          borderRadius: BorderRadius.circular(size * 0.22),
+          child: Image.asset(
+            _kLogoAsset,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            // Decorative — the header title carries the accessible label.
+            semanticLabel: '',
+          ),
+        ),
+
+        // ── Wordmark ───────────────────────────────────────────────────────
+        if (showWordmark) ...[
+          SizedBox(width: size * 0.28),
+          Text(
+            'eddy',
+            style: TextStyle(
+              fontSize: size * 0.40,
+              fontWeight: FontWeight.w600,
+              color: accentColor,
+              letterSpacing: size * 0.06,
+              height: 1.0,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// ── EddySwirlLogo ────────────────────────────────────────────────────────────
+//
+// The original CustomPainter swirl mark — retained as a lightweight fallback
+// for contexts where loading a PNG asset is not appropriate (e.g. unit-test
+// environments, placeholder states, or future SVG export reference).
+//
+// NOT used as the default visual in production. EddyBrandMark now uses the
+// founder-approved PNG logo above.
 class EddySwirlLogo extends StatelessWidget {
   final Color color;
 
@@ -33,7 +102,6 @@ class EddySwirlLogo extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        // Deep ocean surface — distinct from the app background
         color: const Color(0xFF0A1628),
         boxShadow: [
           BoxShadow(
@@ -62,13 +130,6 @@ class _SwirlPainter extends CustomPainter {
     final center = Offset(cx, cy);
     final r = size.width / 2;
 
-    // ── Outer arc — body of the "e" ─────────────────────────────────────
-    //
-    // Sweep: 330° clockwise, starting just past 3 o'clock (pi/12 ≈ 15°).
-    // The 30° gap is centred at 0 rad (3 o'clock) — the "e" opening.
-    //
-    // SweepGradient maps angle→colour: fade at 0° and 360° (the gap ends),
-    // full opacity through the rest of the stroke.
     final arcR = r * 0.70;
     final arcRect = Rect.fromCircle(center: center, radius: arcR);
 
@@ -78,10 +139,10 @@ class _SwirlPainter extends CustomPainter {
         startAngle: 0,
         endAngle: math.pi * 2,
         colors: [
-          color.withValues(alpha: 0.18), // fade at gap end   (≈ 345°)
-          color,                          // full opacity body
+          color.withValues(alpha: 0.18),
           color,
-          color.withValues(alpha: 0.18), // fade at gap start (≈ 15°)
+          color,
+          color.withValues(alpha: 0.18),
         ],
         stops: const [0.0, 0.11, 0.89, 1.0],
       ).createShader(arcRect)
@@ -91,18 +152,12 @@ class _SwirlPainter extends CustomPainter {
 
     canvas.drawArc(
       arcRect,
-      math.pi / 12,      // startAngle: 15°  (just clockwise of 3 o'clock)
-      math.pi * 11 / 6,  // sweepAngle: 330° clockwise
+      math.pi / 12,
+      math.pi * 11 / 6,
       false,
       arcPaint,
     );
 
-    // ── Crossbar — the "e" counter ──────────────────────────────────────
-    //
-    // Horizontal stroke through vertical centre, spanning from the left
-    // tangent point to ~35% past centre-right (into the gap zone).
-    // A slightly lower opacity ties it visually below the arc without
-    // competing with it.
     canvas.drawLine(
       Offset(cx - arcR * 0.95, cy),
       Offset(cx + arcR * 0.38, cy),
@@ -113,7 +168,6 @@ class _SwirlPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
 
-    // ── Eye — the protected centre of the eddy ──────────────────────────
     canvas.drawCircle(
       center,
       r * 0.09,
@@ -123,53 +177,4 @@ class _SwirlPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SwirlPainter old) => old.color != color;
-}
-
-/// ── EddyBrandMark ────────────────────────────────────────────────────────────
-///
-/// The composed brand identity: swirl logo + "eddy" wordmark side-by-side.
-///
-/// [accentColor] is the section-tint colour:
-///   • Regulate → EddyTeal    #6FD3C0
-///   • Focus    → DriftLav    #A89BFF
-///   • Momentum → WarmCoral   #FF8F7A
-///
-/// [showWordmark] — set false to use the mark alone (e.g. compact spots).
-/// [size]        — outer diameter of the swirl circle; wordmark scales with it.
-class EddyBrandMark extends StatelessWidget {
-  final Color accentColor;
-  final bool showWordmark;
-  final double size;
-
-  const EddyBrandMark({
-    super.key,
-    required this.accentColor,
-    this.showWordmark = true,
-    this.size = 26,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        EddySwirlLogo(color: accentColor, size: size),
-        if (showWordmark) ...[
-          SizedBox(width: size * 0.30),
-          Text(
-            'eddy',
-            style: TextStyle(
-              // Scale with the logo so mark + wordmark stay optically aligned
-              fontSize: size * 0.42,
-              fontWeight: FontWeight.w600,
-              color: accentColor,
-              letterSpacing: size * 0.075,
-              height: 1.0,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
 }
