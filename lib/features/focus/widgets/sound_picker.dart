@@ -138,7 +138,10 @@ class _SoundChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(option.emoji, style: const TextStyle(fontSize: 13)),
+            if (option.iconAsset != null)
+              Image.asset(option.iconAsset!, width: 22, height: 22, fit: BoxFit.contain)
+            else
+              Text(option.emoji, style: const TextStyle(fontSize: 13)),
             const SizedBox(width: 6),
             Text(option.label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -184,10 +187,9 @@ class _StreamChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('⊕',
-                style: TextStyle(
-                    fontSize: 13,
-                    color: selected ? Colors.white : c.textSecondary)),
+            Image.asset('assets/icons/focus_sounds/music_stream.png',
+                width: 22, height: 22, fit: BoxFit.contain,
+                color: selected ? Colors.white : null),
             const SizedBox(width: 6),
             Text('Music Stream',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(

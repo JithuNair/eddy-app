@@ -35,7 +35,7 @@ class RegulateScreen extends StatelessWidget {
                     subtitle: 'Fastest relief for acute spikes',
                     description:
                         'Double inhale through nose, long exhale. Offloads CO₂ faster than any other breath pattern.',
-                    icon: Icons.air_rounded,
+                    iconAsset: 'assets/icons/regulate/physiological_sigh.png',
                     tag: 'FASTEST ACTING',
                     color: c.regulate,
                     subtle: c.regulateSubtle,
@@ -47,7 +47,7 @@ class RegulateScreen extends StatelessWidget {
                     subtitle: 'Steady, rhythmic reset',
                     description:
                         'Inhale 4 · hold 4 · exhale 4 · hold 4. Used by special forces to stay calm under pressure.',
-                    icon: Icons.crop_square_rounded,
+                    iconAsset: 'assets/icons/regulate/box_breathing.png',
                     tag: 'STRUCTURED',
                     color: c.regulate,
                     subtle: c.regulateSubtle,
@@ -59,7 +59,7 @@ class RegulateScreen extends StatelessWidget {
                     subtitle: 'Anchor to the present moment',
                     description:
                         '5 things you see · 4 hear · 3 touch · 2 smell · 1 taste. Breaks dissociation fast.',
-                    icon: Icons.anchor_rounded,
+                    iconAsset: 'assets/icons/regulate/grounding.png',
                     tag: 'SENSORY',
                     color: c.regulate,
                     subtle: c.regulateSubtle,
@@ -79,7 +79,7 @@ class _RegulateCard extends StatefulWidget {
   final String title;
   final String subtitle;
   final String description;
-  final IconData icon;
+  final String iconAsset;
   final String tag;
   final Color color;
   final Color subtle;
@@ -89,7 +89,7 @@ class _RegulateCard extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.description,
-    required this.icon,
+    required this.iconAsset,
     required this.tag,
     required this.color,
     required this.subtle,
@@ -161,7 +161,13 @@ class _RegulateCardState extends State<_RegulateCard> {
                         color: widget.subtle,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(widget.icon, color: widget.color, size: 20),
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Image.asset(
+                          widget.iconAsset,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
                   ],
                 ),

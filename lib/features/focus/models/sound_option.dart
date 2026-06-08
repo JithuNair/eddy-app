@@ -7,6 +7,7 @@ class SoundOption {
   final SoundSource source;
   final String? assetPath;
   final String? streamUrl;
+  final String? iconAsset;
 
   const SoundOption({
     required this.id,
@@ -15,17 +16,25 @@ class SoundOption {
     required this.source,
     this.assetPath,
     this.streamUrl,
+    this.iconAsset,
   });
 }
 
 const List<SoundOption> kBundledSounds = [
-  SoundOption(id: 'none', label: 'None', emoji: '○', source: SoundSource.none),
+  SoundOption(
+    id: 'none',
+    label: 'None',
+    emoji: '○',
+    source: SoundSource.none,
+    iconAsset: 'assets/icons/focus_sounds/none.png',
+  ),
   SoundOption(
     id: 'brown_noise',
     label: 'Brown Noise',
     emoji: '◎',
     source: SoundSource.asset,
     assetPath: 'assets/audio/brown_noise.mp3',
+    iconAsset: 'assets/icons/focus_sounds/brown_noise.png',
   ),
   SoundOption(
     id: 'rain',
@@ -33,6 +42,7 @@ const List<SoundOption> kBundledSounds = [
     emoji: '≋',
     source: SoundSource.asset,
     assetPath: 'assets/audio/rain.mp3',
+    iconAsset: 'assets/icons/focus_sounds/rain.png',
   ),
   SoundOption(
     id: 'cafe',
@@ -40,6 +50,7 @@ const List<SoundOption> kBundledSounds = [
     emoji: '⌂',
     source: SoundSource.asset,
     assetPath: 'assets/audio/cafe.mp3',
+    iconAsset: 'assets/icons/focus_sounds/cafe.png',
   ),
   SoundOption(
     id: 'vinyl',
@@ -47,6 +58,7 @@ const List<SoundOption> kBundledSounds = [
     emoji: '◉',
     source: SoundSource.asset,
     assetPath: 'assets/audio/vinyl_70s.mp3',
+    iconAsset: 'assets/icons/focus_sounds/vinyl.png',
   ),
 ];
 
@@ -60,4 +72,5 @@ SoundOption streamSoundOption(String url) => SoundOption(
       emoji: '⊕',
       source: SoundSource.stream,
       streamUrl: url,
+      iconAsset: 'assets/icons/focus_sounds/music_stream.png',
     );

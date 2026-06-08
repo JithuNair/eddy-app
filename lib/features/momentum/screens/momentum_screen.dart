@@ -361,12 +361,29 @@ class _OptionTile extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Center(
-      child: Text('Add your first habit below.',
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: context.colors.textMuted)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Opacity(
+            opacity: 0.55,
+            child: Image.asset(
+              'assets/illustrations/momentum_empty_state.png',
+              width: 180,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Add your first habit below.',
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: c.textMuted),
+          ),
+        ],
+      ),
     );
   }
 }
