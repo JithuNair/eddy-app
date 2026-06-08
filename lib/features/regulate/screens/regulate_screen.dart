@@ -34,7 +34,7 @@ class RegulateScreen extends StatelessWidget {
                     title: 'Physiological Sigh',
                     subtitle: 'Fastest relief for acute spikes',
                     description:
-                        'Double inhale through nose, long exhale. Offloads COâ‚‚ faster than any other breath pattern.',
+                        'Double inhale through nose, long exhale. Offloads CO₂ faster than any other breath pattern.',
                     icon: Icons.air_rounded,
                     tag: 'FASTEST ACTING',
                     color: c.regulate,
@@ -46,7 +46,7 @@ class RegulateScreen extends StatelessWidget {
                     title: 'Box Breathing',
                     subtitle: 'Steady, rhythmic reset',
                     description:
-                        'Inhale 4 Â· hold 4 Â· exhale 4 Â· hold 4. Used by special forces to stay calm under pressure.',
+                        'Inhale 4 · hold 4 · exhale 4 · hold 4. Used by special forces to stay calm under pressure.',
                     icon: Icons.crop_square_rounded,
                     tag: 'STRUCTURED',
                     color: c.regulate,
@@ -58,7 +58,7 @@ class RegulateScreen extends StatelessWidget {
                     title: '5-4-3-2-1 Grounding',
                     subtitle: 'Anchor to the present moment',
                     description:
-                        '5 things you see Â· 4 hear Â· 3 touch Â· 2 smell Â· 1 taste. Breaks dissociation fast.',
+                        '5 things you see · 4 hear · 3 touch · 2 smell · 1 taste. Breaks dissociation fast.',
                     icon: Icons.anchor_rounded,
                     tag: 'SENSORY',
                     color: c.regulate,

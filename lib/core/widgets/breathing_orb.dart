@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import '../theme/eddy_theme.dart';
 
-/// A pulsing orb with a soft glow â€” the signature Eddy breathing visual.
+/// A pulsing orb with a soft glow — the signature Eddy breathing visual.
 /// Drives from an external [AnimationController] so the parent screen
 /// controls the breath cycle timing.
 class BreathingOrb extends StatelessWidget {

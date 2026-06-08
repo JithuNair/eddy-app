@@ -24,7 +24,7 @@ class EddyScaffold extends StatelessWidget {
       floatingActionButtonLocation: floatingActionButtonLocation,
       body: Stack(
         children: [
-          // Subtle ambient glow in top-right â€” the "eddy" ripple signature
+          // Subtle ambient glow in top-right — the “eddy” ripple signature
           if (accentColor != null)
             Positioned(
               top: -80,

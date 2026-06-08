@@ -142,7 +142,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen>
                   Text('Box Breathing',
                       style: Theme.of(context).textTheme.headlineMedium),
                   const SizedBox(height: 4),
-                  Text('4 Â· 4 Â· 4 Â· 4 â€” steady rhythm reset',
+                  Text('4 · 4 · 4 · 4 — steady rhythm reset',
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium
@@ -152,7 +152,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen>
             ),
             const Spacer(),
 
-            // Animated square â€” the box
+            // Animated square — the box
             GestureDetector(
               onTap: _phase == _BoxPhase.ready ? _start : null,
               child: AnimatedBuilder(
