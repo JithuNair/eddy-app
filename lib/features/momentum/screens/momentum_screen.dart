@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/color_tokens.dart';
 import '../../../core/theme/eddy_theme.dart';
 import '../../../core/widgets/eddy_scaffold.dart';
@@ -27,6 +28,48 @@ class MomentumScreen extends ConsumerWidget {
               subtitle: 'Never miss two days in a row.',
               accentColor: c.momentum,
             ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.04, end: 0),
+            // Tracker entry point
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 4, 24, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/momentum/tracker'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: c.momentum.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: c.momentum.withValues(alpha: 0.22),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Tracker',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: c.momentum,
+                                  letterSpacing: 0.5,
+                                ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(Icons.chevron_right_rounded,
+                              size: 14, color: c.momentum),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(delay: 120.ms, duration: 350.ms),
             const SizedBox(height: 8),
             Expanded(
               child: habits.isEmpty

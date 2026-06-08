@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_redundant_argument_values
 
-// Eddy widget tests
+// Eddy widget + model tests
 //
 // Why not a full-app smoke test?
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:eddy/core/widgets/eddy_swirl_logo.dart';
+import 'package:eddy/features/momentum/models/habit.dart';
 
 void main() {
   // ── Minimal helper: thin wrapper providing required Material ancestors ──────
@@ -46,6 +47,95 @@ void main() {
 
       final logo = tester.widget<EddySwirlLogo>(find.byType(EddySwirlLogo));
       expect(logo.size, 48.0);
+    });
+  });
+
+  // ── Habit model (pure logic — no widget pump needed) ─────────────────────────
+  group('Habit model', () {
+    test('completing today adds today to completedDates', () {
+      const habit = Habit(id: 'a', name: 'Test', completedDates: []);
+      final today = Habit.dateKey(DateTime.now());
+      final updated = habit.toggleDate(DateTime.now());
+      expect(updated.completedDates, contains(today));
+    });
+
+    test('completing today twice does not duplicate the date', () {
+      const habit = Habit(id: 'a', name: 'Test', completedDates: []);
+      final toggled = habit.toggleDate(DateTime.now());
+      // toggle again = removes → list empty
+      final reToggled = toggled.toggleDate(DateTime.now());
+      final today = Habit.dateKey(DateTime.now());
+      expect(reToggled.completedDates.where((d) => d == today).length, 0);
+      // and re-adding from empty produces exactly one entry
+      final final_ = reToggled.toggleDate(DateTime.now());
+      expect(final_.completedDates.where((d) => d == today).length, 1);
+    });
+
+    test('isDoneOn returns true only for completed dates', () {
+      final today = DateTime.now();
+      final yesterday = today.subtract(const Duration(days: 1));
+      final habit = Habit(
+        id: 'a',
+        name: 'Test',
+        completedDates: [Habit.dateKey(today)],
+      );
+      expect(habit.isDoneOn(today), isTrue);
+      expect(habit.isDoneOn(yesterday), isFalse);
+    });
+
+    test('tracker summary counts completed days in a month correctly', () {
+      // Build a habit with 3 completions in the current month
+      final now = DateTime.now();
+      final dates = [
+        Habit.dateKey(DateTime(now.year, now.month, 1)),
+        Habit.dateKey(DateTime(now.year, now.month, 5)),
+        Habit.dateKey(DateTime(now.year, now.month, 10)),
+        // One from a different month — should not count
+        Habit.dateKey(DateTime(now.year, now.month - 1, 15)),
+      ];
+      final habit = Habit(id: 'a', name: 'Test', completedDates: dates);
+
+      // Count completions this month (same logic as _SummaryCard)
+      final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+      int count = 0;
+      for (int d = 1; d <= daysInMonth; d++) {
+        if (habit.isDoneOn(DateTime(now.year, now.month, d))) count++;
+      }
+      expect(count, 3);
+    });
+
+    test('7-day row derives from completedDates via isDoneOn', () {
+      final today = DateTime.now();
+      final dates = List.generate(
+        7,
+        (i) => Habit.dateKey(today.subtract(Duration(days: i))),
+      );
+      final habit =
+          Habit(id: 'a', name: 'Test', completedDates: dates);
+
+      for (int i = 0; i < 7; i++) {
+        final day = today.subtract(Duration(days: i));
+        expect(habit.isDoneOn(day), isTrue,
+            reason: 'day -$i should be done');
+      }
+      // An 8th day back should not be done
+      expect(habit.isDoneOn(today.subtract(const Duration(days: 7))),
+          isFalse);
+    });
+
+    test('isLastChance is true when neither today nor yesterday are done', () {
+      const habit =
+          Habit(id: 'a', name: 'Test', completedDates: []);
+      expect(habit.isLastChance, isTrue);
+    });
+
+    test('isLastChance is false when today is done', () {
+      final habit = Habit(
+        id: 'a',
+        name: 'Test',
+        completedDates: [Habit.dateKey(DateTime.now())],
+      );
+      expect(habit.isLastChance, isFalse);
     });
   });
 

@@ -7,6 +7,7 @@ import '../features/regulate/screens/grounding_screen.dart';
 import '../features/focus/screens/focus_screen.dart';
 import '../features/focus/screens/focus_timer_screen.dart';
 import '../features/momentum/screens/momentum_screen.dart';
+import '../features/momentum/screens/momentum_tracker_screen.dart';
 import 'widgets/app_shell.dart';
 
 final appRouter = GoRouter(
@@ -50,6 +51,13 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/momentum',
           pageBuilder: (context, state) => _fade(const MomentumScreen()),
+          routes: [
+            GoRoute(
+              path: 'tracker',
+              pageBuilder: (context, state) =>
+                  _slide(const MomentumTrackerScreen()),
+            ),
+          ],
         ),
       ],
     ),
