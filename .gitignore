@@ -34,3 +34,7 @@ lib/generated_plugin_registrant.dart
 # Env / secrets
 .env
 .env.*
+
+# Release keystore — never commit this
+*.jks
+*.keystore
