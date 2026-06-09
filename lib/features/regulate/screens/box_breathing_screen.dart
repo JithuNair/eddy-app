@@ -222,7 +222,11 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen>
             const Spacer(),
 
             AnimatedSwitcher(
-              duration: 280.ms,
+              duration: const Duration(milliseconds: 600),
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
               child: Column(
                 key: ValueKey(_phase),
                 children: [

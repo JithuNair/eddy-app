@@ -1,6 +1,5 @@
 ﻿import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/color_tokens.dart';
@@ -57,7 +56,6 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
 
   void _runInhale1() {
     setState(() => _phase = _SighPhase.inhale1);
-    HapticFeedback.lightImpact();
     _orbController.animateTo(0.65,
         duration: _inhale1Duration, curve: Curves.easeInOut);
     _phaseTimer = Timer(_inhale1Duration, _runInhale2);
@@ -65,7 +63,6 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
 
   void _runInhale2() {
     setState(() => _phase = _SighPhase.inhale2);
-    HapticFeedback.lightImpact();
     _orbController.animateTo(1.0,
         duration: _inhale2Duration, curve: Curves.easeOut);
     _phaseTimer = Timer(_inhale2Duration, _runExhale);
@@ -73,7 +70,6 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
 
   void _runExhale() {
     setState(() => _phase = _SighPhase.exhale);
-    HapticFeedback.mediumImpact();
     _orbController.animateTo(0.0,
         duration: _exhaleDuration, curve: Curves.easeInOut);
     _phaseTimer = Timer(_exhaleDuration, () {
@@ -85,7 +81,6 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
       } else {
         _phaseTimer = Timer(_betweenDuration, () {
           setState(() => _phase = _SighPhase.done);
-          HapticFeedback.selectionClick();
         });
       }
     });
@@ -229,7 +224,12 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
               child: Column(
                 children: [
                   AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 350),
+                    duration: const Duration(milliseconds: 700),
+                    reverseDuration: const Duration(milliseconds: 120),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) =>
+                        FadeTransition(opacity: animation, child: child),
                     child: Text(
                       _phaseLabel,
                       key: ValueKey(_phaseLabel),
@@ -242,7 +242,12 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
                   ),
                   const SizedBox(height: 8),
                   AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 350),
+                    duration: const Duration(milliseconds: 700),
+                    reverseDuration: const Duration(milliseconds: 120),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) =>
+                        FadeTransition(opacity: animation, child: child),
                     child: Text(
                       _phaseSub,
                       key: ValueKey(_phaseSub),
