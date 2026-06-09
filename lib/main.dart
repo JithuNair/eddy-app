@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router.dart';
 import 'core/providers/theme_provider.dart';
@@ -20,6 +23,11 @@ void main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('habits');
+
+  // Firebase — Analytics + Crashlytics
+  await Firebase.initializeApp();
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
 
   runApp(const ProviderScope(child: EddyApp()));
 }
