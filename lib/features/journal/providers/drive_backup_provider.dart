@@ -94,13 +94,14 @@ class RestoreNotifier extends StateNotifier<RestoreStatus> {
 
     state = RestoreStatus.restoring;
 
-    // Write entries back to Hive
-    for (final entry in entries) {
-      await box.put(entry.id, entry.toJsonString());
-    }
+    // Download all media files first and get the basename→localPath map
+    final pathMap = await _service.restoreMedia();
 
-    // Download all media files
-    await _service.restoreMedia();
+    // Rewrite stale absolute paths in entries, then write to Hive
+    for (final entry in entries) {
+      final fixed = _service.rewritePaths(entry, pathMap);
+      await box.put(fixed.id, fixed.toJsonString());
+    }
 
     state = RestoreStatus.done;
   }

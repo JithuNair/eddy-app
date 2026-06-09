@@ -98,17 +98,17 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
 
   String get _phaseLabel => switch (_phase) {
         _SighPhase.ready => 'Ready when you are',
-        _SighPhase.inhale1 => 'Inhale through nose',
-        _SighPhase.inhale2 => 'Keep inhaling — top it up',
-        _SighPhase.exhale => 'Long slow exhale through mouth',
+        _SighPhase.inhale1 => 'Inhale',
+        _SighPhase.inhale2 => 'Inhale',
+        _SighPhase.exhale => 'Exhale',
         _SighPhase.done => 'Well done',
       };
 
   String get _phaseSub => switch (_phase) {
         _SighPhase.ready => 'Tap the orb to begin',
-        _SighPhase.inhale1 => 'First inhale',
-        _SighPhase.inhale2 => 'Double inhale — quick sniff',
-        _SighPhase.exhale => 'Empty all the way out',
+        _SighPhase.inhale1 => '',
+        _SighPhase.inhale2 => '',
+        _SighPhase.exhale => '',
         _SighPhase.done => 'Your nervous system has been reset',
       };
 
