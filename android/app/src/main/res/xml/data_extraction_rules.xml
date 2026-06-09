@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
-    Android 12+ backup rules.
-    App data is backed up to the USER's Google Drive only — no developer access.
+    Data extraction rules (Android 12+).
+    Same policy: back up Hive data, exclude large media.
 -->
 <data-extraction-rules>
     <cloud-backup>
         <include domain="file" path="." />
+        <exclude domain="file" path="journal/photos" />
+        <exclude domain="file" path="journal/voice" />
         <exclude domain="file" path="flutter_assets" />
     </cloud-backup>
     <device-transfer>
+        <!-- On device transfer (new phone setup), include everything including media -->
         <include domain="file" path="." />
         <exclude domain="file" path="flutter_assets" />
     </device-transfer>
