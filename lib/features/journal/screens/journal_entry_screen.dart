@@ -12,8 +12,9 @@ import '../models/journal_entry.dart';
 import '../providers/journal_provider.dart';
 
 class JournalEntryScreen extends ConsumerStatefulWidget {
-  final String dateKey; // 'YYYY-MM-DD'
-  const JournalEntryScreen({super.key, required this.dateKey});
+  /// Full entry ID ('YYYY-MM-DD_<ms>' for existing, 'new_YYYY-MM-DD' for new).
+  final String entryId;
+  const JournalEntryScreen({super.key, required this.entryId});
 
   @override
   ConsumerState<JournalEntryScreen> createState() => _JournalEntryScreenState();
@@ -25,6 +26,7 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
   late final TextEditingController _bodyCtrl;
   late final TextEditingController _musicUrlCtrl;
   late final TextEditingController _musicTitleCtrl;
+  late final FocusNode _bodyFocus;
 
   late List<String> _photoPaths;
   late List<String> _voiceNotePaths;
@@ -40,11 +42,22 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
   bool _dirty = false;
   bool _saving = false;
 
+  late final DateTime _date;
+  late final String? _existingId; // null → brand-new entry
+
   @override
   void initState() {
     super.initState();
-    final existing = ref.read(journalProvider.notifier).entryForDate(
-        DateTime.parse(widget.dateKey));
+    final isNew = widget.entryId.startsWith('new_');
+    final dateStr = isNew
+        ? widget.entryId.substring(4)
+        : JournalEntry.datePrefix(widget.entryId);
+    _date = DateTime.parse(dateStr);
+    final existing = isNew
+        ? null
+        : ref.read(journalProvider.notifier).entryById(widget.entryId);
+    _existingId = existing?.id;
+
     _headingCtrl = TextEditingController(text: existing?.heading ?? '');
     _subheadingCtrl = TextEditingController(text: existing?.subheading ?? '');
     _bodyCtrl = TextEditingController(text: existing?.body ?? '');
@@ -54,10 +67,16 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
     _voiceNotePaths = List.from(existing?.voiceNotePaths ?? []);
     _musicUrl = existing?.musicUrl;
     _musicTitle = existing?.musicTitle;
+    _bodyFocus = FocusNode();
 
     for (final ctrl in [_headingCtrl, _subheadingCtrl, _bodyCtrl]) {
       ctrl.addListener(() => setState(() => _dirty = true));
     }
+
+    // Auto-focus body for quick capture
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _bodyFocus.requestFocus();
+    });
   }
 
   @override
@@ -67,6 +86,7 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
     _bodyCtrl.dispose();
     _musicUrlCtrl.dispose();
     _musicTitleCtrl.dispose();
+    _bodyFocus.dispose();
     _recorder.dispose();
     _player.dispose();
     super.dispose();
@@ -76,12 +96,12 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
 
   Future<void> _save() async {
     setState(() => _saving = true);
-    final date = DateTime.parse(widget.dateKey);
-    final existing =
-        ref.read(journalProvider.notifier).entryForDate(date) ??
-            JournalEntry.forDate(date);
+    final base = (_existingId != null
+            ? ref.read(journalProvider.notifier).entryById(_existingId!)
+            : null) ??
+        JournalEntry.newEntry(_date);
 
-    final updated = existing.copyWith(
+    final updated = base.copyWith(
       heading: _headingCtrl.text.trim().isEmpty ? null : _headingCtrl.text.trim(),
       subheading: _subheadingCtrl.text.trim().isEmpty ? null : _subheadingCtrl.text.trim(),
       body: _bodyCtrl.text.trim().isEmpty ? null : _bodyCtrl.text.trim(),
@@ -112,9 +132,10 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
     if (files.isEmpty) return;
 
     final dir = await _journalDir('photos');
+    final dateStr = JournalEntry.dateKey(_date);
     for (final xf in files) {
       final ext = xf.path.split('.').last;
-      final dest = '${dir.path}/${widget.dateKey}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      final dest = '${dir.path}/${dateStr}_${DateTime.now().millisecondsSinceEpoch}.$ext';
       await File(xf.path).copy(dest);
       setState(() {
         _photoPaths.add(dest);
@@ -136,7 +157,7 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
   Future<void> _startRecording() async {
     final dir = await _journalDir('voice');
     final path =
-        '${dir.path}/${widget.dateKey}_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        '${dir.path}/${JournalEntry.dateKey(_date)}_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
@@ -321,7 +342,6 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final date = DateTime.parse(widget.dateKey);
 
     return Scaffold(
       backgroundColor: c.background,
@@ -338,7 +358,7 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
             }
           },
         ),
-        title: Text(_formatDate(date),
+        title: Text(_formatDate(_date),
             style: TextStyle(
                 fontSize: 15, color: c.textSecondary, fontWeight: FontWeight.w500)),
         actions: [
@@ -399,6 +419,7 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
               // Body
               _Field(
                 controller: _bodyCtrl,
+                focusNode: _bodyFocus,
                 label: null,
                 hint: 'Write anything... no limits, no judgement.',
                 colors: c,
@@ -506,6 +527,7 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
 
 class _Field extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
   final String? label;
   final String hint;
   final ColorTokens colors;
@@ -517,6 +539,7 @@ class _Field extends StatelessWidget {
 
   const _Field({
     required this.controller,
+    this.focusNode,
     required this.label,
     required this.hint,
     required this.colors,
@@ -543,6 +566,7 @@ class _Field extends StatelessWidget {
         ],
         TextField(
           controller: controller,
+          focusNode: focusNode,
           style: style ?? TextStyle(fontSize: 15, color: c.textPrimary),
           keyboardType: keyboardType,
           minLines: minLines,

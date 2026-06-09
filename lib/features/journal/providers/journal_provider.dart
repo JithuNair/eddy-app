@@ -29,10 +29,17 @@ class JournalNotifier extends StateNotifier<List<JournalEntry>> {
     state = entries;
   }
 
-  JournalEntry? entryForDate(DateTime date) {
-    final key = JournalEntry.dateKey(date);
-    return state.where((e) => e.id == key).firstOrNull;
+  /// All entries for a given calendar day, newest first.
+  List<JournalEntry> entriesForDate(DateTime date) {
+    final prefix = JournalEntry.dateKey(date);
+    return state
+        .where((e) => JournalEntry.datePrefix(e.id) == prefix)
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
+
+  JournalEntry? entryById(String id) =>
+      state.where((e) => e.id == id).firstOrNull;
 
   Future<void> save(JournalEntry entry) async {
     await _box.put(entry.id, entry.toJsonString());

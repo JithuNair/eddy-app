@@ -1,14 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/habit.dart';
+import '../../journal/providers/drive_backup_provider.dart';
 
 const _boxName = 'habits';
 const _seedHabitId = 'movement';
 
 class MomentumNotifier extends StateNotifier<List<Habit>> {
   late Box _box;
+  final Ref _ref;
 
-  MomentumNotifier() : super([]) {
+  MomentumNotifier(this._ref) : super([]) {
     _load();
   }
 
@@ -33,6 +35,9 @@ class MomentumNotifier extends StateNotifier<List<Habit>> {
       _box.put(h.id, h.toJsonString());
     }
     state = habits;
+    // Backup to Drive in the background (fire-and-forget)
+    _ref.read(driveBackupServiceProvider)
+        .backupHabits(habits.map((h) => h.toJson()).toList());
   }
 
   void toggleToday(String habitId) {
@@ -60,6 +65,15 @@ class MomentumNotifier extends StateNotifier<List<Habit>> {
     _save(updated);
   }
 
+  /// Restore: un-archives a habit so it reappears on the Momentum screen.
+  void restoreHabit(String habitId) {
+    final updated = state.map((h) {
+      if (h.id != habitId) return h;
+      return h.copyWithArchived(false);
+    }).toList();
+    _save(updated);
+  }
+
   /// Hard-delete: permanently removes the habit and all its history from
   /// Hive. Called only from the Tracker screen via an explicit confirmation.
   void permanentlyDeleteHabit(String habitId) {
@@ -78,5 +92,5 @@ class MomentumNotifier extends StateNotifier<List<Habit>> {
 
 final momentumProvider =
     StateNotifierProvider<MomentumNotifier, List<Habit>>((ref) {
-  return MomentumNotifier();
+  return MomentumNotifier(ref);
 });

@@ -740,6 +740,43 @@ class _PermanentDeleteSection extends ConsumerWidget {
               ?.copyWith(color: c.textMuted, height: 1.6),
         ),
         const SizedBox(height: 16),
+        // Restore button
+        GestureDetector(
+          onTap: () {
+            ref.read(momentumProvider.notifier).restoreHabit(habit.id);
+            onDeleted(); // navigates away / resets selection
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              color: c.momentum.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                  color: c.momentum.withValues(alpha: 0.25), width: 0.5),
+            ),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.undo_rounded,
+                      size: 16,
+                      color: c.momentum.withValues(alpha: 0.85)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Restore to active habits',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: c.momentum.withValues(alpha: 0.85),
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        // Permanent delete button
         GestureDetector(
           onTap: () => _confirmDelete(context, ref),
           child: Container(

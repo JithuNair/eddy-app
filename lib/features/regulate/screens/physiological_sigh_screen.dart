@@ -51,21 +51,24 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
 
   void _start() {
     setState(() => _round = 1);
-    _runInhale1();
+    _runInhale();
   }
 
-  void _runInhale1() {
+  void _runInhale() {
     setState(() => _phase = _SighPhase.inhale1);
-    _orbController.animateTo(0.65,
-        duration: _inhale1Duration, curve: Curves.easeInOut);
-    _phaseTimer = Timer(_inhale1Duration, _runInhale2);
-  }
-
-  void _runInhale2() {
-    setState(() => _phase = _SighPhase.inhale2);
+    // Run both inhale phases as ONE continuous animation so there is no
+    // velocity discontinuity (choppiness) at the boundary.
+    // The custom curve handles the 0→0.65 (1800ms) and 0.65→1.0 (800ms)
+    // segments internally with matching velocities.
+    const totalInhale = Duration(milliseconds: 2600); // 1800 + 800
     _orbController.animateTo(1.0,
-        duration: _inhale2Duration, curve: Curves.easeOut);
-    _phaseTimer = Timer(_inhale2Duration, _runExhale);
+        duration: totalInhale, curve: const _InhaleDoubleCurve());
+
+    // Flip the label at the 1800ms mark (cosmetic only — animation continues)
+    _phaseTimer = Timer(_inhale1Duration, () {
+      if (mounted) setState(() => _phase = _SighPhase.inhale2);
+      _phaseTimer = Timer(_inhale2Duration, _runExhale);
+    });
   }
 
   void _runExhale() {
@@ -76,7 +79,7 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
       if (_round < _totalRounds) {
         _phaseTimer = Timer(_betweenDuration, () {
           setState(() => _round++);
-          _runInhale1();
+          _runInhale();
         });
       } else {
         _phaseTimer = Timer(_betweenDuration, () {
@@ -289,5 +292,32 @@ class _PhysiologicalSighScreenState extends State<PhysiologicalSighScreen>
         ),
       ),
     );
+  }
+}
+
+// ── Smooth double-inhale curve ─────────────────────────────────────────────────
+//
+// Maps [0,1] progress to orb size [0,1] across both inhale phases in one
+// uninterrupted motion, eliminating the velocity discontinuity that caused
+// choppiness when two separate animateTo() calls were chained.
+//
+//  t ∈ [0, split)    → first inhale  (0 → 0.65) with easeIn
+//  t ∈ [split, 1]    → second inhale (0.65 → 1.0) with easeOut
+//  split = 1800 / 2600 ≈ 0.692
+class _InhaleDoubleCurve extends Curve {
+  const _InhaleDoubleCurve();
+
+  static const double _split = 1800 / 2600; // fraction of time for phase 1
+  static const double _mid = 0.65;           // orb value at the boundary
+
+  @override
+  double transform(double t) {
+    if (t <= _split) {
+      final p = t / _split;
+      return Curves.easeIn.transform(p) * _mid;
+    } else {
+      final p = (t - _split) / (1.0 - _split);
+      return _mid + Curves.easeOut.transform(p) * (1.0 - _mid);
+    }
   }
 }

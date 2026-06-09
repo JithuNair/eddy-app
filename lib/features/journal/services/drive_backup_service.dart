@@ -268,6 +268,63 @@ class DriveBackupService {
     );
   }
 
+  // ── Momentum backup / restore ─────────────────────────────────────────────
+
+  static const _habitsFileName = 'momentum_habits.json';
+
+  Future<void> backupHabits(List<dynamic> habits) async {
+    if (habits.isEmpty) return;
+    try {
+      final api = await _driveApi();
+      if (api == null) return;
+
+      // habits is List<Habit> — caller passes toJson() list to avoid importing
+      // the Habit model here.
+      final jsonBytes = utf8.encode(jsonEncode(habits));
+      final stream = Stream.value(jsonBytes);
+      final media = drive.Media(stream, jsonBytes.length,
+          contentType: 'application/json');
+
+      final existing = await _findFile(api, _habitsFileName);
+      if (existing != null) {
+        await api.files.update(drive.File(), existing, uploadMedia: media);
+      } else {
+        final meta = drive.File()
+          ..name = _habitsFileName
+          ..parents = ['appDataFolder'];
+        await api.files.create(meta, uploadMedia: media);
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DriveBackup] backupHabits error: $e');
+    }
+  }
+
+  /// Returns the raw JSON list from Drive, or null if not found.
+  Future<List<Map<String, dynamic>>?> restoreHabits() async {
+    try {
+      final api = await _driveApi();
+      if (api == null) return null;
+
+      final fileId = await _findFile(api, _habitsFileName);
+      if (fileId == null) return null;
+
+      final media = await api.files
+          .get(fileId, downloadOptions: drive.DownloadOptions.fullMedia)
+          as drive.Media;
+
+      final bytes = await _collectBytes(media);
+      if (bytes.isEmpty) return null;
+
+      final json = jsonDecode(utf8.decode(bytes)) as List<dynamic>;
+      return json.cast<Map<String, dynamic>>();
+    } catch (e) {
+      // ignore: avoid_print
+      print('[DriveBackup] restoreHabits error: $e');
+      return null;
+    }
+  }
+
   /// Delete a media file from Drive.
   Future<void> deleteMediaFile(String localPath) async {
     try {

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../momentum/models/habit.dart';
 import '../services/drive_backup_service.dart';
 
 // ── Singleton service ────────────────────────────────────────────────────────
@@ -101,6 +102,18 @@ class RestoreNotifier extends StateNotifier<RestoreStatus> {
     for (final entry in entries) {
       final fixed = _service.rewritePaths(entry, pathMap);
       await box.put(fixed.id, fixed.toJsonString());
+    }
+
+    // Also restore momentum habits if the habits box is empty
+    final habitsBox = await Hive.openBox('habits');
+    if (habitsBox.isEmpty) {
+      final habitJsonList = await _service.restoreHabits();
+      if (habitJsonList != null && habitJsonList.isNotEmpty) {
+        for (final json in habitJsonList) {
+          final habit = Habit.fromJson(json);
+          await habitsBox.put(habit.id, habit.toJsonString());
+        }
+      }
     }
 
     state = RestoreStatus.done;

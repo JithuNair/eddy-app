@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class JournalEntry {
   final String id;
-  final DateTime date; // normalised to midnight — one entry per day
+  final DateTime date; // normalised to midnight
   final String? heading;
   final String? subheading;
   final String? body;
@@ -89,11 +89,25 @@ class JournalEntry {
         updatedAt: DateTime.parse(json['updatedAt'] as String),
       );
 
+  /// Creates a new entry with a unique timestamped ID: 'YYYY-MM-DD_<ms>'.
+  factory JournalEntry.newEntry(DateTime date) {
+    final d = DateTime(date.year, date.month, date.day);
+    final now = DateTime.now();
+    return JournalEntry(
+      id: '${dateKey(d)}_${now.millisecondsSinceEpoch}',
+      date: d,
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
+  /// Legacy single-entry factory — preserved so old 'YYYY-MM-DD' Hive keys
+  /// still load correctly after migration.
   factory JournalEntry.forDate(DateTime date) {
     final d = DateTime(date.year, date.month, date.day);
     final now = DateTime.now();
     return JournalEntry(
-      id: '${d.year}-${d.month.toString().padLeft(2,'0')}-${d.day.toString().padLeft(2,'0')}',
+      id: dateKey(d),
       date: d,
       createdAt: now,
       updatedAt: now,
@@ -102,6 +116,11 @@ class JournalEntry {
 
   static String dateKey(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2,'0')}-${date.day.toString().padLeft(2,'0')}';
+
+  /// Returns the 'YYYY-MM-DD' prefix for any entry ID — works for both old
+  /// single-entry IDs ('2026-06-09') and new timestamped IDs ('2026-06-09_1749…').
+  static String datePrefix(String id) =>
+      id.length >= 10 ? id.substring(0, 10) : id;
 
   String toJsonString() => jsonEncode(toJson());
   factory JournalEntry.fromJsonString(String s) =>

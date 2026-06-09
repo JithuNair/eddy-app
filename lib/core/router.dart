@@ -9,6 +9,7 @@ import '../features/focus/screens/focus_timer_screen.dart';
 import '../features/momentum/screens/momentum_screen.dart';
 import '../features/momentum/screens/momentum_tracker_screen.dart';
 import '../features/journal/screens/journal_screen.dart';
+import '../features/journal/screens/journal_day_screen.dart';
 import '../features/journal/screens/journal_entry_screen.dart';
 import '../features/journal/screens/journal_view_screen.dart';
 import 'widgets/app_shell.dart';
@@ -70,9 +71,14 @@ final appRouter = GoRouter(
     ),
     // Journal sub-routes (outside shell so they are full-screen)
     GoRoute(
-      path: '/journal/entry/:dateKey',
+      path: '/journal/day/:dateKey',
       pageBuilder: (context, state) => _slide(
-          JournalEntryScreen(dateKey: state.pathParameters['dateKey']!)),
+          JournalDayScreen(dateKey: state.pathParameters['dateKey']!)),
+    ),
+    GoRoute(
+      path: '/journal/entry/:entryId',
+      pageBuilder: (context, state) => _slide(
+          JournalEntryScreen(entryId: state.pathParameters['entryId']!)),
     ),
     GoRoute(
       path: '/journal/view/:entryId',

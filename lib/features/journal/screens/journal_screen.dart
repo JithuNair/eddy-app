@@ -118,7 +118,7 @@ class _JournalContentState extends ConsumerState<_JournalContent> {
       },
     );
     if (picked != null && context.mounted) {
-      context.push('/journal/entry/${JournalEntry.dateKey(picked)}');
+      context.push('/journal/day/${JournalEntry.dateKey(picked)}');
     }
   }
 
@@ -147,15 +147,33 @@ class _JournalContentState extends ConsumerState<_JournalContent> {
     final c = context.colors;
     final today = DateTime.now();
     final todayKey = JournalEntry.dateKey(today);
-    final hasToday = entries.any((e) => e.id == todayKey);
+    final todayCount = entries
+        .where((e) => JournalEntry.datePrefix(e.id) == todayKey)
+        .length;
+    final hasToday = todayCount > 0;
 
-    // Group entries by "Month YYYY"
-    final grouped = <String, List<JournalEntry>>{};
+    // Group entries by day (YYYY-MM-DD) — each day is one card in the timeline
+    final byDay = <String, List<JournalEntry>>{};
     for (final e in entries) {
-      final key = _monthKey(e.date);
-      grouped.putIfAbsent(key, () => []).add(e);
+      final dk = JournalEntry.datePrefix(e.id);
+      byDay.putIfAbsent(dk, () => []).add(e);
     }
-    final groupKeys = grouped.keys.toList(); // already sorted newest-first
+    // Sort entries within each day newest-first
+    for (final list in byDay.values) {
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    }
+    // Sort days newest-first
+    final sortedDays = byDay.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    // Group days by "Month YYYY"
+    final grouped = <String, List<String>>{};
+    for (final dk in sortedDays) {
+      final d = DateTime.parse(dk);
+      final mk = _monthKey(d);
+      grouped.putIfAbsent(mk, () => []).add(dk);
+    }
+    final groupKeys = grouped.keys.toList();
 
     return Scaffold(
       backgroundColor: c.background,
@@ -357,7 +375,7 @@ class _JournalContentState extends ConsumerState<_JournalContent> {
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 4),
                 child: Row(
                   children: [
-                    Expanded(child: _TodayCta(hasEntry: hasToday)),
+                    Expanded(child: _TodayCta(count: todayCount)),
                     const SizedBox(width: 10),
                     _PastDateButton(onTap: () => _pickPastDate(context)),
                   ],
@@ -397,7 +415,7 @@ class _JournalContentState extends ConsumerState<_JournalContent> {
                 ),
               )
             else ...[
-              // Timeline grouped by month
+              // Timeline grouped by month, one card per day
               for (final monthKey in groupKeys) ...[
                 SliverToBoxAdapter(
                   child: Padding(
@@ -428,8 +446,13 @@ class _JournalContentState extends ConsumerState<_JournalContent> {
                   sliver: SliverList.separated(
                     itemCount: grouped[monthKey]!.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, i) =>
-                        _EntryCard(entry: grouped[monthKey]![i]),
+                    itemBuilder: (context, i) {
+                      final dk = grouped[monthKey]![i];
+                      return _DayCard(
+                        dateKey: dk,
+                        entries: byDay[dk]!,
+                      );
+                    },
                   ),
                 ),
               ],
@@ -571,15 +594,16 @@ class _PastDateButton extends StatelessWidget {
 // ── Today CTA ─────────────────────────────────────────────────────────────────
 
 class _TodayCta extends StatelessWidget {
-  final bool hasEntry;
-  const _TodayCta({required this.hasEntry});
+  final int count;
+  const _TodayCta({required this.count});
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final today = DateTime.now();
+    final hasEntry = count > 0;
     return GestureDetector(
-      onTap: () => context.push('/journal/entry/${JournalEntry.dateKey(today)}'),
+      onTap: () => context.push('/journal/day/${JournalEntry.dateKey(today)}'),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(18),
@@ -593,9 +617,7 @@ class _TodayCta extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              hasEntry
-                  ? Icons.edit_note_rounded
-                  : Icons.add_circle_outline_rounded,
+              hasEntry ? Icons.edit_note_rounded : Icons.add_circle_outline_rounded,
               color: c.journal,
               size: 26,
             ),
@@ -605,7 +627,9 @@ class _TodayCta extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    hasEntry ? "Today's entry" : 'Write today\'s entry',
+                    hasEntry
+                        ? 'Today · $count note${count == 1 ? '' : 's'}'
+                        : 'Write today\'s entry',
                     style: TextStyle(
                         color: c.textPrimary,
                         fontWeight: FontWeight.w600,
@@ -614,8 +638,7 @@ class _TodayCta extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     _formatToday(today),
-                    style:
-                        TextStyle(color: c.textMuted, fontSize: 12),
+                    style: TextStyle(color: c.textMuted, fontSize: 12),
                   ),
                 ],
               ),
@@ -641,21 +664,33 @@ class _TodayCta extends StatelessWidget {
   }
 }
 
-// ── Entry card (timeline) ──────────────────────────────────────────────────────
+// ── Day card (timeline) ───────────────────────────────────────────────────────
 
-class _EntryCard extends StatelessWidget {
-  final JournalEntry entry;
-  const _EntryCard({required this.entry});
+class _DayCard extends StatelessWidget {
+  final String dateKey;
+  final List<JournalEntry> entries; // already sorted newest-first
+
+  const _DayCard({required this.dateKey, required this.entries});
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final hasPhotos = entry.photoPaths.isNotEmpty;
-    final hasVoice = entry.voiceNotePaths.isNotEmpty;
-    final hasMusic = entry.musicUrl != null;
+    final date = DateTime.parse(dateKey);
+    final count = entries.length;
+    final top = entries.first;
+
+    // Aggregate attachments across all notes for this day
+    int totalPhotos = 0;
+    int totalVoice = 0;
+    bool hasMusic = false;
+    for (final e in entries) {
+      totalPhotos += e.photoPaths.length;
+      totalVoice += e.voiceNotePaths.length;
+      if (e.musicUrl != null) hasMusic = true;
+    }
 
     return GestureDetector(
-      onTap: () => context.push('/journal/view/${entry.id}'),
+      onTap: () => context.push('/journal/day/$dateKey'),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -666,16 +701,36 @@ class _EntryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Date
-            Text(_formatDate(entry.date),
-                style: TextStyle(
-                    fontSize: 12,
-                    color: c.journal,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.4)),
-            if (entry.heading != null && entry.heading!.isNotEmpty) ...[
+            // Date + note count badge
+            Row(
+              children: [
+                Text(_formatDate(date),
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: c.journal,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.4)),
+                const Spacer(),
+                if (count > 1)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: c.journal.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text('$count notes',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: c.journal,
+                            fontWeight: FontWeight.w600)),
+                  ),
+              ],
+            ),
+            // Top note preview
+            if (top.heading != null && top.heading!.isNotEmpty) ...[
               const SizedBox(height: 6),
-              Text(entry.heading!,
+              Text(top.heading!,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -683,33 +738,36 @@ class _EntryCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
             ],
-            if (entry.body != null && entry.body!.isNotEmpty) ...[
+            if (top.body != null && top.body!.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text(entry.body!,
+              Text(top.body!,
                   style: TextStyle(
                       fontSize: 14, color: c.textSecondary, height: 1.4),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ],
-            if (hasPhotos || hasVoice || hasMusic) ...[
+            // Aggregated attachment chips
+            if (totalPhotos > 0 || totalVoice > 0 || hasMusic) ...[
               const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
                 children: [
-                  if (hasPhotos)
+                  if (totalPhotos > 0)
                     _AttachChip(
                         icon: Icons.photo_library_outlined,
-                        label: '${entry.photoPaths.length} photo${entry.photoPaths.length > 1 ? 's' : ''}',
+                        label:
+                            '$totalPhotos photo${totalPhotos > 1 ? 's' : ''}',
                         color: c.journal),
-                  if (hasVoice)
+                  if (totalVoice > 0)
                     _AttachChip(
                         icon: Icons.mic_none_rounded,
-                        label: '${entry.voiceNotePaths.length} voice note${entry.voiceNotePaths.length > 1 ? 's' : ''}',
+                        label:
+                            '$totalVoice voice${totalVoice > 1 ? 's' : ''}',
                         color: c.journal),
                   if (hasMusic)
                     _AttachChip(
                         icon: Icons.music_note_rounded,
-                        label: entry.musicTitle ?? 'Music',
+                        label: 'Music',
                         color: c.journal),
                 ],
               ),
