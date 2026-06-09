@@ -59,8 +59,9 @@ class JournalUnlockedNotifier extends StateNotifier<bool> {
       state = authenticated;
       return authenticated;
     } catch (_) {
-      state = true; // fail-open if local_auth errors
-      return true;
+      // Fail-closed: any biometric API exception keeps the journal locked.
+      state = false;
+      return false;
     }
   }
 

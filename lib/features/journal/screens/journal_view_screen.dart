@@ -216,7 +216,10 @@ class _JournalViewScreenState extends ConsumerState<JournalViewScreen> {
               GestureDetector(
                 onTap: () async {
                   final uri = Uri.tryParse(entry.musicUrl!);
-                  if (uri != null && await canLaunchUrl(uri)) {
+                  const _allowedSchemes = {'https', 'http', 'spotify'};
+                  if (uri != null &&
+                      _allowedSchemes.contains(uri.scheme) &&
+                      await canLaunchUrl(uri)) {
                     await launchUrl(uri,
                         mode: LaunchMode.externalApplication);
                   }

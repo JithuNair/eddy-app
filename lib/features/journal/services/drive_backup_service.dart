@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -36,6 +39,11 @@ class DriveBackupService {
   Future<bool> signInInteractive() async {
     try {
       final account = await _googleSignIn.signIn();
+      if (account != null) {
+        // Request scope once after successful interactive sign-in.
+        await _googleSignIn
+            .requestScopes([drive.DriveApi.driveAppdataScope]);
+      }
       return account != null;
     } catch (_) {
       return false;
@@ -50,11 +58,6 @@ class DriveBackupService {
   // ── Drive client ──────────────────────────────────────────────────────────
 
   Future<drive.DriveApi?> _driveApi() async {
-    try {
-      if (_googleSignIn.currentUser != null) {
-        await _googleSignIn.requestScopes([drive.DriveApi.driveAppdataScope]);
-      }
-    } catch (_) {}
     final client = await _googleSignIn.authenticatedClient();
     if (client == null) return null;
     return drive.DriveApi(client);
@@ -92,8 +95,7 @@ class DriveBackupService {
         }
       }
     } catch (e) {
-      // ignore: avoid_print
-      print('[DriveBackup] backupAll error: $e');
+      if (kDebugMode) dev.log('[DriveBackup] backupAll error: $e');
     }
   }
 
@@ -108,8 +110,7 @@ class DriveBackupService {
         await _uploadMediaFile(api, path);
       }
     } catch (e) {
-      // ignore: avoid_print
-      print('[DriveBackup] backupEntry error: $e');
+      if (kDebugMode) dev.log('[DriveBackup] backupEntry error: $e');
     }
   }
 
@@ -175,8 +176,7 @@ class DriveBackupService {
           .map((e) => JournalEntry.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      // ignore: avoid_print
-      print('[DriveBackup] restoreEntries error: $e');
+      if (kDebugMode) dev.log('[DriveBackup] restoreEntries error: $e');
       return null;
     }
   }
@@ -236,8 +236,7 @@ class DriveBackupService {
         pageToken = list.nextPageToken;
       } while (pageToken != null);
     } catch (e) {
-      // ignore: avoid_print
-      print('[DriveBackup] restoreMedia error: $e');
+      if (kDebugMode) dev.log('[DriveBackup] restoreMedia error: $e');
     }
     return pathMap;
   }
@@ -295,8 +294,7 @@ class DriveBackupService {
         await api.files.create(meta, uploadMedia: media);
       }
     } catch (e) {
-      // ignore: avoid_print
-      print('[DriveBackup] backupHabits error: $e');
+      if (kDebugMode) dev.log('[DriveBackup] backupHabits error: $e');
     }
   }
 
@@ -319,8 +317,7 @@ class DriveBackupService {
       final json = jsonDecode(utf8.decode(bytes)) as List<dynamic>;
       return json.cast<Map<String, dynamic>>();
     } catch (e) {
-      // ignore: avoid_print
-      print('[DriveBackup] restoreHabits error: $e');
+      if (kDebugMode) dev.log('[DriveBackup] restoreHabits error: $e');
       return null;
     }
   }
@@ -335,8 +332,7 @@ class DriveBackupService {
       final fileId = await _findFile(api, driveName);
       if (fileId != null) await api.files.delete(fileId);
     } catch (e) {
-      // ignore: avoid_print
-      print('[DriveBackup] deleteMediaFile error: $e');
+      if (kDebugMode) dev.log('[DriveBackup] deleteMediaFile error: $e');
     }
   }
 
