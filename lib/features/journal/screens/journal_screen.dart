@@ -6,6 +6,7 @@ import '../../../core/providers/theme_provider.dart';
 import '../models/journal_entry.dart';
 import '../providers/journal_provider.dart';
 import '../providers/journal_lock_provider.dart';
+import '../providers/drive_backup_provider.dart';
 
 class JournalScreen extends ConsumerWidget {
   const JournalScreen({super.key});
@@ -75,8 +76,23 @@ class _LockGate extends StatelessWidget {
 
 // ── Main journal content ───────────────────────────────────────────────────────
 
-class _JournalContent extends ConsumerWidget {
+class _JournalContent extends ConsumerStatefulWidget {
   const _JournalContent();
+
+  @override
+  ConsumerState<_JournalContent> createState() => _JournalContentState();
+}
+
+class _JournalContentState extends ConsumerState<_JournalContent> {
+  @override
+  void initState() {
+    super.initState();
+    // Kick off a silent restore check on first open.
+    // If the box is non-empty (normal use), this is a no-op.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(restoreProvider.notifier).checkAndRestore();
+    });
+  }
 
   Future<void> _pickPastDate(BuildContext context) async {
     final now = DateTime.now();
@@ -107,8 +123,27 @@ class _JournalContent extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    // When restore finishes, reload journalProvider from the newly-populated Hive box
+    ref.listen<RestoreStatus>(restoreProvider, (prev, next) {
+      if (next == RestoreStatus.done) {
+        ref.invalidate(journalProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Journal restored from your Google Drive backup.',
+              style: TextStyle(color: context.colors.textPrimary),
+            ),
+            backgroundColor: context.colors.surface,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
+
     final entries = ref.watch(journalProvider);
+    final restoreStatus = ref.watch(restoreProvider);
+    final driveStatus = ref.watch(driveBackupProvider);
     final c = context.colors;
     final today = DateTime.now();
     final todayKey = JournalEntry.dateKey(today);
@@ -169,6 +204,98 @@ class _JournalContent extends ConsumerWidget {
                 ),
               ),
             ),
+
+            // Restore in-progress banner
+            if (restoreStatus == RestoreStatus.checking ||
+                restoreStatus == RestoreStatus.restoring)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: c.journal.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: c.journal.withValues(alpha: 0.25)),
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: c.journal)),
+                        const SizedBox(width: 10),
+                        Text(
+                          restoreStatus == RestoreStatus.checking
+                              ? 'Looking for your backup…'
+                              : 'Restoring your journal…',
+                          style:
+                              TextStyle(color: c.journal, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            // Drive backup status chip (shown when not signed in)
+            if (driveStatus == DriveSignInStatus.signedOut)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                  child: GestureDetector(
+                    onTap: () async {
+                      final ok = await ref
+                          .read(driveBackupProvider.notifier)
+                          .signIn();
+                      if (ok && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Drive backup active — your journal is safe.',
+                              style: TextStyle(color: c.textPrimary),
+                            ),
+                            backgroundColor: c.surface,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        // Now run a full backup
+                        ref
+                            .read(driveBackupServiceProvider)
+                            .backupAll(ref.read(journalProvider));
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: c.surfaceElevated,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: c.border),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.cloud_off_rounded,
+                              size: 16, color: c.textMuted),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Tap to enable Google Drive backup',
+                              style: TextStyle(
+                                  color: c.textSecondary, fontSize: 13),
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded,
+                              size: 16, color: c.textMuted),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
             // Today + Past date row
             SliverToBoxAdapter(

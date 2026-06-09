@@ -2,18 +2,21 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/journal_entry.dart';
+import '../services/drive_backup_service.dart';
+import 'drive_backup_provider.dart';
 
 const _boxName = 'journal';
 
 final journalProvider =
     StateNotifierProvider<JournalNotifier, List<JournalEntry>>((ref) {
-  return JournalNotifier();
+  return JournalNotifier(ref);
 });
 
 class JournalNotifier extends StateNotifier<List<JournalEntry>> {
   late Box _box;
+  final Ref _ref;
 
-  JournalNotifier() : super([]) {
+  JournalNotifier(this._ref) : super([]) {
     _init();
   }
 
@@ -35,19 +38,30 @@ class JournalNotifier extends StateNotifier<List<JournalEntry>> {
     await _box.put(entry.id, entry.toJsonString());
     final others = state.where((e) => e.id != entry.id).toList();
     state = [entry, ...others]..sort((a, b) => b.date.compareTo(a.date));
+
+    // Backup to Drive in the background (fire-and-forget)
+    _driveService.backupEntry(state, entry);
   }
 
   Future<void> delete(JournalEntry entry) async {
-    // Delete associated files from disk
+    // Delete associated files from disk + queue Drive deletion
     for (final path in entry.photoPaths) {
       final f = File(path);
       if (await f.exists()) await f.delete();
+      _driveService.deleteMediaFile(path);
     }
     for (final path in entry.voiceNotePaths) {
       final f = File(path);
       if (await f.exists()) await f.delete();
+      _driveService.deleteMediaFile(path);
     }
     await _box.delete(entry.id);
     state = state.where((e) => e.id != entry.id).toList();
+
+    // Update Drive entries JSON after deletion
+    _driveService.backupAll(state);
   }
+
+  DriveBackupService get _driveService =>
+      _ref.read(driveBackupServiceProvider);
 }
