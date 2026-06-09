@@ -48,13 +48,22 @@ final driveBackupProvider =
 
 // ── Restore state ─────────────────────────────────────────────────────────────
 
-enum RestoreStatus { idle, checking, restoring, done, error }
+enum RestoreStatus { idle, checking, restoring, done, error, needsAuth }
 
 class RestoreNotifier extends StateNotifier<RestoreStatus> {
   final DriveBackupService _service;
   final Ref _ref;
 
   RestoreNotifier(this._service, this._ref) : super(RestoreStatus.idle);
+
+  /// Called when user explicitly taps "Restore from backup".
+  /// Signs in interactively (refreshes token), then runs restore.
+  Future<void> restoreWithSignIn() async {
+    final ok = await _service.signInInteractive();
+    if (!ok) return;
+    state = RestoreStatus.idle; // reset so checkAndRestore proceeds
+    await checkAndRestore();
+  }
 
   /// Check Drive for a backup and restore if found.
   /// Safe to call on every cold start — skips if local data already exists.
@@ -69,7 +78,10 @@ class RestoreNotifier extends StateNotifier<RestoreStatus> {
 
     if (!_service.isSignedIn) {
       final ok = await _service.signInSilently();
-      if (!ok) return; // No account — skip silently
+      if (!ok) {
+        state = RestoreStatus.needsAuth;
+        return;
+      }
     }
 
     state = RestoreStatus.checking;

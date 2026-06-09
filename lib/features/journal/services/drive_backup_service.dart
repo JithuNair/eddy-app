@@ -59,6 +59,14 @@ class DriveBackupService {
   // ── Drive client ──────────────────────────────────────────────────────────
 
   Future<drive.DriveApi?> _driveApi() async {
+    // After reinstall the cached token may be stale — request the scope to
+    // force a token refresh before trying to get an authenticated client.
+    try {
+      if (_googleSignIn.currentUser != null) {
+        await _googleSignIn.requestScopes(
+            [drive.DriveApi.driveAppdataScope]);
+      }
+    } catch (_) {}
     final client = await _googleSignIn.authenticatedClient();
     if (client == null) return null;
     return drive.DriveApi(client);
@@ -69,6 +77,7 @@ class DriveBackupService {
   /// Full backup: entries JSON + any media files not yet uploaded.
   /// Fire-and-forget safe — errors are swallowed and reported to console.
   Future<void> backupAll(List<JournalEntry> entries) async {
+    if (entries.isEmpty) return; // Never overwrite a real backup with empty data
     try {
       final api = await _driveApi();
       if (api == null) return;
@@ -89,6 +98,7 @@ class DriveBackupService {
   /// Incremental backup after a single save — entries JSON + new media only.
   Future<void> backupEntry(
       List<JournalEntry> allEntries, JournalEntry saved) async {
+    if (allEntries.isEmpty) return;
     try {
       final api = await _driveApi();
       if (api == null) return;

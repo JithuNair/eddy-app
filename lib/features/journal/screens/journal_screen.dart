@@ -241,6 +241,53 @@ class _JournalContentState extends ConsumerState<_JournalContent> {
                 ),
               ),
 
+            // Restore from backup button (shown when journal is empty but
+            // Drive is connected — covers stale-token case after reinstall)
+            if (entries.isEmpty &&
+                restoreStatus != RestoreStatus.checking &&
+                restoreStatus != RestoreStatus.restoring &&
+                (restoreStatus == RestoreStatus.needsAuth ||
+                 (driveStatus == DriveSignInStatus.signedIn &&
+                  restoreStatus == RestoreStatus.idle)))
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                  child: GestureDetector(
+                    onTap: () => ref
+                        .read(restoreProvider.notifier)
+                        .restoreWithSignIn(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: c.journal.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: c.journal.withValues(alpha: 0.25)),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.cloud_download_outlined,
+                              size: 16, color: c.journal),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Restore from Drive backup',
+                              style: TextStyle(
+                                  color: c.journal,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                          Icon(Icons.chevron_right_rounded,
+                              size: 16, color: c.journal),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
             // Drive backup status chip (shown when not signed in)
             if (driveStatus == DriveSignInStatus.signedOut)
               SliverToBoxAdapter(
@@ -251,21 +298,28 @@ class _JournalContentState extends ConsumerState<_JournalContent> {
                       final ok = await ref
                           .read(driveBackupProvider.notifier)
                           .signIn();
-                      if (ok && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Drive backup active — your journal is safe.',
-                              style: TextStyle(color: c.textPrimary),
-                            ),
-                            backgroundColor: c.surface,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        // Now run a full backup
+                      if (!ok || !mounted) return;
+                      final currentEntries = ref.read(journalProvider);
+                      if (currentEntries.isEmpty) {
+                        // Journal is empty — check if there's a backup to restore
+                        ref.read(restoreProvider.notifier).restoreWithSignIn();
+                      } else {
+                        // Journal has data — back it up
                         ref
                             .read(driveBackupServiceProvider)
-                            .backupAll(ref.read(journalProvider));
+                            .backupAll(currentEntries);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Drive backup active — your journal is safe.',
+                                style: TextStyle(color: c.textPrimary),
+                              ),
+                              backgroundColor: c.surface,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
                       }
                     },
                     child: Container(
