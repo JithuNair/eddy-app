@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Backs up Hive boxes to the USER's own Google Drive.
+    Eddy never sees this data — it lives entirely in the user's account.
+-->
+<full-backup-content>
+    <!-- Hive stores boxes in the app's files directory -->
+    <include domain="file" path="." />
+    <!-- Exclude Flutter engine internals — not needed for restore -->
+    <exclude domain="file" path="flutter_assets" />
+</full-backup-content>
