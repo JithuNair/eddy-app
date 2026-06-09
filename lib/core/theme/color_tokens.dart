@@ -17,6 +17,8 @@ class ColorTokens extends ThemeExtension<ColorTokens> {
   final Color focusSubtle;
   final Color momentum;
   final Color momentumSubtle;
+  final Color journal;
+  final Color journalSubtle;
   final Color mistBlue;
 
   const ColorTokens({
@@ -34,6 +36,8 @@ class ColorTokens extends ThemeExtension<ColorTokens> {
     required this.focusSubtle,
     required this.momentum,
     required this.momentumSubtle,
+    required this.journal,
+    required this.journalSubtle,
     required this.mistBlue,
   });
 
@@ -52,6 +56,8 @@ class ColorTokens extends ThemeExtension<ColorTokens> {
     focusSubtle: Color(0xFF1A1535),
     momentum: Color(0xFFFF8F7A),
     momentumSubtle: Color(0xFF2D1510),
+    journal: Color(0xFF85A8F5),
+    journalSubtle: Color(0xFF101A35),
     mistBlue: Color(0xFF7EB6FF),
   );
 
@@ -70,6 +76,8 @@ class ColorTokens extends ThemeExtension<ColorTokens> {
     focusSubtle: Color(0xFFEEE8FF),
     momentum: Color(0xFFF57D68),
     momentumSubtle: Color(0xFFFDECEA),
+    journal: Color(0xFF5B82E8),
+    journalSubtle: Color(0xFFEAEFFD),
     mistBlue: Color(0xFF4F8DFF),
   );
 
@@ -79,7 +87,8 @@ class ColorTokens extends ThemeExtension<ColorTokens> {
     Color? darkOverlay, Color? border, Color? textPrimary,
     Color? textSecondary, Color? textMuted, Color? regulate,
     Color? regulateSubtle, Color? focus, Color? focusSubtle,
-    Color? momentum, Color? momentumSubtle, Color? mistBlue,
+    Color? momentum, Color? momentumSubtle,
+    Color? journal, Color? journalSubtle, Color? mistBlue,
   }) {
     return ColorTokens(
       background: background ?? this.background,
@@ -96,6 +105,8 @@ class ColorTokens extends ThemeExtension<ColorTokens> {
       focusSubtle: focusSubtle ?? this.focusSubtle,
       momentum: momentum ?? this.momentum,
       momentumSubtle: momentumSubtle ?? this.momentumSubtle,
+      journal: journal ?? this.journal,
+      journalSubtle: journalSubtle ?? this.journalSubtle,
       mistBlue: mistBlue ?? this.mistBlue,
     );
   }
@@ -118,6 +129,8 @@ class ColorTokens extends ThemeExtension<ColorTokens> {
       focusSubtle: Color.lerp(focusSubtle, other.focusSubtle, t)!,
       momentum: Color.lerp(momentum, other.momentum, t)!,
       momentumSubtle: Color.lerp(momentumSubtle, other.momentumSubtle, t)!,
+      journal: Color.lerp(journal, other.journal, t)!,
+      journalSubtle: Color.lerp(journalSubtle, other.journalSubtle, t)!,
       mistBlue: Color.lerp(mistBlue, other.mistBlue, t)!,
     );
   }

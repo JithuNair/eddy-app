@@ -25,6 +25,11 @@ class AppShell extends ConsumerWidget {
       assetPath: 'assets/icons/nav/momentum.png',
       path: '/momentum',
     ),
+    _Tab(
+      label: 'Journal',
+      assetPath: 'assets/icons/nav/journal.png',
+      path: '/journal',
+    ),
   ];
 
   static const _subRoutes = [
@@ -37,6 +42,7 @@ class AppShell extends ConsumerWidget {
   int _indexFor(String loc) {
     if (loc.startsWith('/focus')) return 1;
     if (loc.startsWith('/momentum')) return 2;
+    if (loc.startsWith('/journal')) return 3;
     return 0;
   }
 
@@ -44,7 +50,7 @@ class AppShell extends ConsumerWidget {
       !_subRoutes.any((r) => loc.startsWith(r));
 
   Color _activeColor(int index, ColorTokens c) {
-    return [c.regulate, c.focus, c.momentum][index];
+    return [c.regulate, c.focus, c.momentum, c.journal][index];
   }
 
   @override
@@ -54,7 +60,7 @@ class AppShell extends ConsumerWidget {
     final showNav = _showNav(loc);
     final c = context.colors;
     final activeColor = _activeColor(index, c);
-    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final isDark = ref.watch(themeModeProvider.notifier).isDark;
 
     return Stack(
       children: [
@@ -71,9 +77,9 @@ class AppShell extends ConsumerWidget {
               ),
           ],
         ),
-        if (showNav)
+        if (showNav && !loc.startsWith('/journal'))
           Positioned(
-            top: 20,
+            top: MediaQuery.of(context).padding.top + 8,
             right: 20,
             child: _ThemeToggle(isDark: isDark, onToggle: () {
               ref.read(themeModeProvider.notifier).toggle();
