@@ -1,4 +1,4 @@
-package com.example.eddy
+package com.kami.eddy
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
