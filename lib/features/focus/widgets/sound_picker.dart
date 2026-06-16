@@ -139,7 +139,14 @@ class _SoundChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (option.iconAsset != null)
-              Image.asset(option.iconAsset!, width: 22, height: 22, fit: BoxFit.contain)
+              Image.asset(
+                option.iconAsset!,
+                width: 22,
+                height: 22,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) =>
+                    Text(option.emoji, style: const TextStyle(fontSize: 13)),
+              )
             else
               Text(option.emoji, style: const TextStyle(fontSize: 13)),
             const SizedBox(width: 6),
