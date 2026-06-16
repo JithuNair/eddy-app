@@ -20,20 +20,6 @@ class FocusScreen extends ConsumerStatefulWidget {
 }
 
 class _FocusScreenState extends ConsumerState<FocusScreen> {
-  final _intentionController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _intentionController.text = ref.read(focusTimerProvider).intention;
-  }
-
-  @override
-  void dispose() {
-    _intentionController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -61,39 +47,6 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const EddySectionLabel('WHAT ARE YOU WORKING ON?'),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _intentionController,
-                      style: Theme.of(context).textTheme.bodyLarge
-                          ?.copyWith(color: c.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: 'one thing, right now...',
-                        hintStyle: TextStyle(color: c.textMuted, fontSize: 15),
-                        filled: true,
-                        fillColor: c.surface,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: c.border),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: c.border),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: c.focus, width: 1.5),
-                        ),
-                      ),
-                      onChanged: timerNotifier.setIntention,
-                      maxLines: 1,
-                      textInputAction: TextInputAction.done,
-                    ),
-
-                    const SizedBox(height: 32),
-
                     const EddySectionLabel('DURATION'),
                     const SizedBox(height: 12),
                     Row(
