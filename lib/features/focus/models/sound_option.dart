@@ -54,7 +54,7 @@ const List<SoundOption> kBundledSounds = [
   ),
   SoundOption(
     id: 'vinyl',
-    label: '70s Vinyl',
+    label: 'Film Projector',
     emoji: '◉',
     source: SoundSource.asset,
     assetPath: 'assets/audio/vinyl_70s.mp3',
